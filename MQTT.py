@@ -11,11 +11,12 @@ class Mqtt_class:
     TOPIC = "test1"
     
 
-    def __init__(self,message_queue) -> None:
+    def __init__(self,message_queue, topic=TOPIC) -> None:
 
         self.client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
         self.client.on_connect = self.on_connect
         self.message_queue=message_queue
+        self.topic=topic
 
         # enable TLS for secure connection
         self.client.tls_set(tls_version=mqtt.client.ssl.PROTOCOL_TLS)
@@ -33,7 +34,8 @@ class Mqtt_class:
     # with this callback you can see if your publish was successful
     def on_publish(client, userdata, mid, properties=None):
         
-        print(("mid: " + str(mid)))
+        # print(("mid: " + str(mid)))
+        print("published" )
         # Q.append((str("mid: " + str(mid))))
         # Q1.append(1)
 
@@ -50,7 +52,9 @@ class Mqtt_class:
 
     # print which topic was subscribed to
     def on_subscribe(self,client, userdata, mid, granted_qos, properties=None):
-        print("Subscribed: " + str(mid) + " " + str(granted_qos))
+        # print("Subscribed: " + str(mid) + " " + str(granted_qos))
+        
+        print("subscribtion successfull")
 
         ...
 
@@ -60,6 +64,8 @@ class Mqtt_class:
         self.message_queue.put(str(msg.payload.decode("utf-8")))  # Put the message into the queue for processing
 
 
+    def mqtt_subscribe(self, topic):
+        self.client.subscribe(topic, qos=0)
 
     def  listen(self):
         self.client.loop_forever()
@@ -68,10 +74,10 @@ class Mqtt_class:
     def mqtt_publish(self,payload="test paylaod",topic=TOPIC,qos=0):
         self.client.publish(topic, payload=payload, qos=qos)
 
-    def mqtt_start(self,topic=TOPIC):
+    def mqtt_start(self):
 
         # print('here')
-        self.client.subscribe(topic, qos=0)
+        self.client.subscribe(self.topic, qos=0)
         # self.client.publish("test1", payload="test1_py", qos=0)
         self.client.loop_forever()
         # client.loop_start()

@@ -3,6 +3,7 @@ PASS_WORD= "@A12345678"
 SERVER_URL= "efa5bbcfa6a14bce91cbbe7daf25a2b5.s2.eu.hivemq.cloud"
 PORT= 8883
 TOPIC_TX = "S2D"
+TOPIC_RX = "test1"
 
 current_time = '2022-12-07 08:48:00'
 
