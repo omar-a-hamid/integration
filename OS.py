@@ -18,6 +18,7 @@ TODO: make sure data id in the right format/type
 TODO: approxmate time to time step, here or in A* 
 TODO: open a thread to save the df
 TODO: a task to act as a manger, maybe pool, that will call other tasks to handle other files
+TODO: make columns in df and remove cols from writing??
 
 """
 import time
@@ -47,8 +48,13 @@ def process_message(message):
 
     try:
         data = json.loads(str(message))
-        process_message.df = pd.concat([process_message.df, pd.DataFrame(data,index = [data[time_stamp]])])
+        data_df = pd.DataFrame(data,index = [data[time_stamp]])
+        process_message.df = pd.concat([process_message.df,data_df ])
         print(process_message.df) 
+
+        write_csv_procses=threading.Thread(target=write_csv,args=(process_message.df,))
+        write_csv_procses.start()        
+
 
         # print(data)
         # print(df) 
@@ -84,16 +90,26 @@ def message_processor(queue_msg):
             process_message(message)
 
 
+def write_csv(df=None):
+
+    df.to_csv (r'data.csv', index = False, header=True)
+
+    # df.to_csv (r'data.csv', index = False, header=False, mode='a')
+
+
+
 if __name__ == '__main__':
 
-    mqtt_listener_processes = []
+    processes = []
 
     message_processor_process = threading.Thread(target=message_processor,args=(message_queue,))
     message_processor_process.start()
     
     mqtt_process =  threading.Thread(target=mqtt.mqtt_task,args=())
     mqtt_process.start()
-    mqtt_listener_processes.append(mqtt_process)
+
+
+    processes.append(mqtt_process)
 
     
     try:
@@ -105,6 +121,6 @@ if __name__ == '__main__':
         message_processor_process.join()
 
         # Terminate the MQTT listener processes
-        for procses in mqtt_listener_processes:
+        for procses in processes:
             # p.terminate()
             procses.join()
