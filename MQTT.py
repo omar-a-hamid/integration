@@ -68,10 +68,10 @@ class Mqtt_class:
     def mqtt_publish(self,payload="test paylaod",topic=TOPIC,qos=0):
         self.client.publish(topic, payload=payload, qos=qos)
 
-    def mqtt_start(self):
+    def mqtt_start(self,topic=TOPIC):
 
         # print('here')
-        self.client.subscribe("test1", qos=0)
+        self.client.subscribe(topic, qos=0)
         # self.client.publish("test1", payload="test1_py", qos=0)
         self.client.loop_forever()
         # client.loop_start()
