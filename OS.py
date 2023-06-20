@@ -56,7 +56,7 @@ def process_message(message):
         if (current_pos_lat and current_pos_lon and distination_pos_lat and distination_pos_lon) in data:
             print("start and destination found, Routing..")
             print("start: ",data[current_pos_lat],", ",data[current_pos_lon],
-                   ", destination: ",data[distination_pos_lat],", ",data[distination_pos_lon])
+                   "\n destination: ",data[distination_pos_lat],", ",data[distination_pos_lon])
             
             route_found = route.find_route(data[current_pos_lat],data[current_pos_lon]
                                            ,data[distination_pos_lat],data[distination_pos_lon],current_time)
