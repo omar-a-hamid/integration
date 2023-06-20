@@ -16,7 +16,7 @@ TODO: add the collision and the tarffic predictiton model
 TODO: change processing message to dump in csv file? 
 TODO: make sure data id in the right format/type 
 TODO: approxmate time to time step, here or in A* 
-
+TODO: open a thread to save the df
 TODO: a task to act as a manger, maybe pool, that will call other tasks to handle other files
 
 """
@@ -29,6 +29,7 @@ from A_star_distance import Route
 from MQTT import Mqtt_class
 from config import *
 
+import pandas as pd 
 
 
 
@@ -42,15 +43,21 @@ route=Route("map/")
 def process_message(message):
     # Process the received message
     # print("Processing message:", message)
-    # print(str(message))
+
+
     try:
         data = json.loads(str(message))
+        process_message.df = pd.concat([process_message.df, pd.DataFrame(data,index = [data[time_stamp]])])
+        print(process_message.df) 
+
         # print(data)
+        # print(df) 
 
         # message_queue.put(data)  # Put the message into the queue for processing
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
+    
     if ((routing_cmd in data) and data[routing_cmd]):
         print("routing command found")
 
@@ -65,10 +72,12 @@ def process_message(message):
             print("fastest route: ",route_found)
             mqtt.mqtt_publish(str(route_found),TOPIC_TX)
 
+process_message.df = pd.DataFrame()
 
 
 
 def message_processor(queue_msg):
+
     while True:
         message = queue_msg.get()
         if message:            
