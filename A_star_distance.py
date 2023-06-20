@@ -1,9 +1,10 @@
-import traci
+# import traci
 import sumolib
 
 import pandas as pd
 import math
 #TODO: bug some time it fetches the speed zero
+#TODO: time incrmenting
 """
 TODO: 
 
@@ -37,7 +38,7 @@ class Route:
         self.ds = pd.read_csv(path+'traffic.csv')
         self.df = pd.pivot_table(self.ds,index = 'dateandtime')
         self.net = sumolib.net.readNet(path+'osm.net.xml')
-        traci.start(["sumo", "-c", path+"osm.sumocfg"])
+        # traci.start(["sumo", "-c", path+"osm.sumocfg"])
 
     
 
@@ -139,7 +140,10 @@ class Route:
         
         edges = []
         direction=[]
+        nodes=[]
+        # print("path: ",path)
         for i in range(0,len(path)-1):
+            
             from_junction_edges = self.net.getNode(path[i]).getOutgoing()
             for edge in from_junction_edges:
                 edge_ID = edge.getID()
@@ -147,13 +151,25 @@ class Route:
                 to_junction_edges = self.net.getEdge(edge_ID).getToNode().getID() 
                 if path[i+1] == to_junction_edges:
                     edges.append(edge)
+                    
+                    break
+            
+            # print("edge: ", )
+        for i in range(0, len(edges)-1):
+            direction.append(edges[i].getConnections(edges[i+1])[0].getDirection())
+            (x,y) = edges[i].getConnections(edges[i+1])[0].getJunction().getCoord()
+            # print(edges[i].getConnections(edges[i+1])[0])
+            # print(edges[i].getConnections(edges[i+1])[0].getJunction().getID())
+            # nodes.append(tuple(reversed(self.net.convertXY2LonLat(x,y))))
+            direction.append(tuple(reversed(self.net.convertXY2LonLat(x,y))))
 
-            for i in range(0, len(edges)-1):
-                direction.append(edges[i].getConnections(edges[i+1])[0].getDirection())  
+            
 
-                # print("dir:",direction)
+            # print("dir:",direction)
         # print("path: ", path)
         # print("directions: ",direction)
+        # print(nodes)
+        
         return direction
 
     def find_route(self,s_lat,s_lon, g_lat,g_lon,time):
@@ -170,7 +186,8 @@ class Route:
 
     
     def __del__(self):
-        traci.close()
+        ...
+        # traci.close()
 
 
 
@@ -186,14 +203,20 @@ class Route:
 # goal_node = "6570524692"
 # ds = pd.read_csv('traffic.csv')
 
-# time = '2022-12-07 08:48:00'
-# route=Route("map/")
-# # s_lat,s_lon = 30.065080, 31.349080
-# # g_lat,g_lon = 30.062221, 31.349503
 
-# s_lat,s_lon = 30.060773, 31.347836
-# g_lat,g_lon = 30.063157, 30.063157
+def test():
+
+    time = '2022-12-07 08:48:00'
+    route=Route("map/")
+    # s_lat,s_lon = 30.065080, 31.349080
+    # g_lat,g_lon = 30.062221, 31.349503
+
+    s_lat,s_lon = 30.06288510254581 ,  31.34526851298622 
+    g_lat,g_lon =  30.060972260514543 ,  31.34990337023007
 
 
-# shortest_path = route.find_route(s_lat,s_lon, g_lat,g_lon ,time)
-# print(shortest_path)
+    shortest_path = route.find_route(s_lat,s_lon, g_lat,g_lon ,time)
+    print(shortest_path)
+
+if __name__=='__main__':
+    test()
