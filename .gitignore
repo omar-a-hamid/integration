@@ -1,3 +1,5 @@
-/map
-/__pycache__
-data_frame_testing.py
+*
+!OS.py
+!A_star_distance.py
+!MQTT.py
+!config.py
