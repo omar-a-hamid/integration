@@ -140,7 +140,7 @@ class Route:
         
         edges = []
         direction=[]
-        nodes=[]
+        # nodes=[]
         # print("path: ",path)
         for i in range(0,len(path)-1):
             
