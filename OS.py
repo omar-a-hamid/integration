@@ -63,18 +63,26 @@ pattern_7 = r"7:\s*(\d+)"
 
 def process_message(message):
     # Process the received message
-    print("Processing message:", message)
+    # print("Processing message:", message)
+    # print(str(message))
+    try:
+        data = json.loads(str(message))
+        # print(data)
+
+        # message_queue.put(data)  # Put the message into the queue for processing
+    except json.JSONDecodeError as e:
+        print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
-    if "2: 1" in message:
+    if data['2']:
         print("routing command found")
-        match_6 = re.search(pattern_6, message)
-        match_7 = re.search(pattern_7, message)
-        if match_6 and match_7:
+        # match_6 = re.search(pattern_6, message)
+        # match_7 = re.search(pattern_7, message)
+        if data['6'] and data['7'] and data['8'] and data['9']:
             print("start and destination found, Routing..")
-            value_6 = str(match_6.group(1))
-            value_7 = str(match_7.group(1))
-            print("start: ",value_6,", destination: ",value_7)
-            route_found = route.find_route(value_6,value_7,current_time)
+            # value_6 = str(match_6.group(1))
+            # value_7 = str(match_7.group(1))
+            print("start: ",data['6'],", ",data['7'], ", destination: ",data['8'],", ",data['9'])
+            route_found = route.find_route(data['6'],data['7'],data['8'],data['9'],current_time)
             print("fastest route: ",route_found)
             mqtt.mqtt_publish(str(route_found),"S2D")
 
@@ -87,8 +95,9 @@ def message_processor(queue_msg):
 
         message = queue_msg.get()
         if message:
-
+            
             process_message(message)
+
 
 if __name__ == '__main__':
 

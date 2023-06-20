@@ -56,8 +56,8 @@ class Mqtt_class:
 
     # print message, useful for checking if it was successful
     def on_message(self,client, userdata, msg):
-        print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload))
-        self.message_queue.put(str(msg.payload))  # Put the message into the queue for processing
+        print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload.decode("utf-8")))
+        self.message_queue.put(str(msg.payload.decode("utf-8")))  # Put the message into the queue for processing
 
 
 

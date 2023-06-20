@@ -27,6 +27,8 @@ csv -->
 """
 
 
+
+
 class Route:
 
     
@@ -34,10 +36,10 @@ class Route:
 
         self.ds = pd.read_csv(path+'traffic.csv')
         self.df = pd.pivot_table(self.ds,index = 'dateandtime')
-        self.net = sumolib.net.readNet('osm.net.xml')
+        self.net = sumolib.net.readNet(path+'osm.net.xml')
         traci.start(["sumo", "-c", path+"osm.sumocfg"])
 
-        
+    
 
     def get_traffic(self,edge,time): 
 
@@ -133,14 +135,38 @@ class Route:
 
 
         return closest_node
+    def gerDirections(self, path):
+        
+        edges = []
+        direction=[]
+        for i in range(0,len(path)-1):
+            from_junction_edges = self.net.getNode(path[i]).getOutgoing()
+            for edge in from_junction_edges:
+                edge_ID = edge.getID()
 
-    def find_route(self,start_node,goal_node,time):
-        shortest_path = self.a_star(start_node, goal_node,time)
+                to_junction_edges = self.net.getEdge(edge_ID).getToNode().getID() 
+                if path[i+1] == to_junction_edges:
+                    edges.append(edge)
+
+            for i in range(0, len(edges)-1):
+                direction.append(edges[i].getConnections(edges[i+1])[0].getDirection())  
+
+                # print("dir:",direction)
+        # print("path: ", path)
+        # print("directions: ",direction)
+        return direction
+
+    def find_route(self,s_lat,s_lon, g_lat,g_lon,time):
+        start_node = self.get_closest_node(s_lon, s_lat)
+        goal_node  = self.get_closest_node(g_lon, g_lat)
+
+        shortest_path = self.a_star(start_node.getID() , goal_node.getID(),time)
         # print("Shortest path:", shortest_path)
-        return shortest_path
+        return self.gerDirections(shortest_path)
 
         # stop the simulation
         # traci.close()
+
 
     
     def __del__(self):
@@ -151,7 +177,7 @@ class Route:
 
 
 
-# time = '2022-12-07 08:48:00'
+
 
 # start the simulation and connect to it
 
@@ -160,6 +186,14 @@ class Route:
 # goal_node = "6570524692"
 # ds = pd.read_csv('traffic.csv')
 
-# route=Route("traffic.csv")
+# time = '2022-12-07 08:48:00'
+# route=Route("map/")
+# # s_lat,s_lon = 30.065080, 31.349080
+# # g_lat,g_lon = 30.062221, 31.349503
 
-# route.find_route(start_node,goal_node,time)
+# s_lat,s_lon = 30.060773, 31.347836
+# g_lat,g_lon = 30.063157, 30.063157
+
+
+# shortest_path = route.find_route(s_lat,s_lon, g_lat,g_lon ,time)
+# print(shortest_path)
