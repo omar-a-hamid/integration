@@ -9,7 +9,7 @@ current_time = '2022-12-07 08:48:00'
 
 ##############################
 #json keys
-time_stamp          = ''
+time_stamp          = '1'
 V_ID                = ''
 current_speed       = ''
 current_pos_lat     = '6'
