@@ -15,6 +15,7 @@ avoid it here
 TODO: add the collision and the tarffic predictiton model
 TODO: change processing message to dump in csv file? 
 TODO: make sure data id in the right format/type 
+TODO: approxmate time to time step, here or in A* 
 
 TODO: a task to act as a manger, maybe pool, that will call other tasks to handle other files
 
