@@ -55,9 +55,25 @@ message_queue = multiprocessing.Queue()
 mqtt=Mqtt_class(message_queue)
 route=Route("map/")
 
+###############################################
 
-pattern_6 = r"6:\s*(\d+)"
-pattern_7 = r"7:\s*(\d+)"
+time_stamp = ''
+current_speed = ''
+
+routing_cmd = '2'
+
+obstacle_flag=''
+obstacle_speed=''
+
+current_pos_lat = '6'
+current_pos_lon = '7'
+
+distination_pos_lat = '8'
+distination_pos_lon = '9'
+
+
+
+
 
 
 
@@ -73,19 +89,20 @@ def process_message(message):
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
-    if data['2']:
+    if data[routing_cmd]:
         print("routing command found")
         # match_6 = re.search(pattern_6, message)
         # match_7 = re.search(pattern_7, message)
-        if data['6'] and data['7'] and data['8'] and data['9']:
+        if data[current_pos_lat] and data[current_pos_lon] and data[distination_pos_lat] and data[distination_pos_lon]:
             print("start and destination found, Routing..")
             # value_6 = str(match_6.group(1))
             # value_7 = str(match_7.group(1))
-            print("start: ",data['6'],", ",data['7'], ", destination: ",data['8'],", ",data['9'])
-            route_found = route.find_route(data['6'],data['7'],data['8'],data['9'],current_time)
+            print("start: ",data[current_pos_lat],", ",data[current_pos_lon],
+                   ", destination: ",data[distination_pos_lat],", ",data[distination_pos_lon])
+            route_found = route.find_route(data[current_pos_lat],data[current_pos_lon]
+                                           ,data[distination_pos_lat],data[distination_pos_lon],current_time)
             print("fastest route: ",route_found)
             mqtt.mqtt_publish(str(route_found),"S2D")
-
 
 
 
