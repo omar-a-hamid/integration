@@ -50,7 +50,7 @@ def process_message(message):
         data = json.loads(str(message))
         data_df = pd.DataFrame(data,index = [data[time_stamp]])
         process_message.df = pd.concat([process_message.df,data_df ])
-        print(process_message.df) 
+        # print(process_message.df) 
 
         write_csv_procses=threading.Thread(target=write_csv,args=(process_message.df,))
         write_csv_procses.start()        
@@ -65,22 +65,35 @@ def process_message(message):
     # TODO: change this to dump in csv file? 
     
     if ((routing_cmd in data) and data[routing_cmd]):
-        print("routing command found")
+        route_processor(data)
 
-        if (current_pos_lat and current_pos_lon and distination_pos_lat and distination_pos_lon) in data:
-            print("start and destination found, Routing..")
-            print("start: ",data[current_pos_lat],", ",data[current_pos_lon],
-                   "\n destination: ",data[distination_pos_lat],", ",data[distination_pos_lon])
-            
-            route_found = route.find_route(data[current_pos_lat],data[current_pos_lon]
-                                           ,data[distination_pos_lat],data[distination_pos_lon],current_time)
-            
-            print("fastest route: ",route_found)
-            mqtt.mqtt_publish(str(route_found),TOPIC_TX)
 
 process_message.df = pd.DataFrame()
 
+def route_task(data):
+    print("routing command found")
 
+    # if all([current_pos_lat, current_pos_lon , distination_pos_lat , distination_pos_lon]) in data:
+    if all(s in data for s in (current_pos_lat,current_pos_lon , distination_pos_lat,distination_pos_lon)):
+        print("start and destination found, Routing..")
+        print("start: ",data[current_pos_lat],", ",data[current_pos_lon],
+                "\n destination: ",data[distination_pos_lat],", ",data[distination_pos_lon])
+        
+        route_found = route.find_route(data[current_pos_lat],data[current_pos_lon]
+                                        ,data[distination_pos_lat],data[distination_pos_lon],current_time)
+        
+        print("fastest route: ",route_found)
+        # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
+
+def route_processor(data):
+    route_procses=threading.Thread(target=route_task,args=(data,))
+    route_procses.start()   
+
+
+def collisoins_task():
+    while True:
+        ...
+    ...
 
 def message_processor(queue_msg):
 
@@ -108,8 +121,12 @@ if __name__ == '__main__':
     mqtt_process =  threading.Thread(target=mqtt.mqtt_task,args=())
     mqtt_process.start()
 
+    collision_process =  threading.Thread(target=collisoins_task,args=())
+    collision_process.start()
 
     processes.append(mqtt_process)
+    processes.append(collision_process)
+
 
     
     try:
