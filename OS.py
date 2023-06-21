@@ -76,13 +76,13 @@ def route_task(data):
     # if all([current_pos_lat, current_pos_lon , distination_pos_lat , distination_pos_lon]) in data:
     if all(s in data for s in (current_pos_lat,current_pos_lon , distination_pos_lat,distination_pos_lon)):
         print("start and destination found, Routing..")
-        print("start: ",data[current_pos_lat],", ",data[current_pos_lon],
-                "\n destination: ",data[distination_pos_lat],", ",data[distination_pos_lon])
+        print("start: \n",data[current_pos_lat],", ",data[current_pos_lon],
+                "\ndestination: \n",data[distination_pos_lat],", ",data[distination_pos_lon])
         
         route_found = route.find_route(data[current_pos_lat],data[current_pos_lon]
                                         ,data[distination_pos_lat],data[distination_pos_lon],current_time)
         
-        print("fastest route: ",route_found)
+        print("\n\nfastest route: \n",route_found)
         # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
 
 def route_processor(data):
