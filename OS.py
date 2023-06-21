@@ -23,6 +23,7 @@ TODO: choose what threads and what process
 TODO: extarct relvant traffic data, timed process? as tarffic prediction
 TODO: insert deaf nodes to collision algo (collisions)
 TODO: goal node should detect closest previous node (A*)
+TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
 
 """
 import time

@@ -111,7 +111,7 @@ class Route:
                         
         return None
         # find the shortest path using A* algorithm
-    def get_closest_node(self,lon, lat):
+    def get_closest_node(self,lon, lat, from_node=0):
         
         
         # lon,lat =  31.347218, 30.058983
@@ -134,9 +134,10 @@ class Route:
                 # print(closestEdge)
                 break
             radius *= 10
-        
-        closest_node = self.net.getEdge(closestEdge.getID()).getToNode()
-
+        if not from_node:
+            closest_node = self.net.getEdge(closestEdge.getID()).getToNode()
+        else: 
+            closest_node = self.net.getEdge(closestEdge.getID()).getFromNode()
 
         return closest_node
     def gerDirections(self, path):
@@ -180,7 +181,7 @@ class Route:
 
     def find_route(self,s_lat,s_lon, g_lat,g_lon,time):
         start_node = self.get_closest_node(s_lon, s_lat)
-        goal_node  = self.get_closest_node(g_lon, g_lat)
+        goal_node  = self.get_closest_node(g_lon, g_lat,from_node=1)
 
         shortest_path = self.a_star(start_node.getID() , goal_node.getID(),time)
         # print("Shortest path:", shortest_path)
