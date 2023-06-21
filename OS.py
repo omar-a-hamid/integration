@@ -21,6 +21,8 @@ TODO: a task to act as a manger, maybe pool, that will call other tasks to handl
 TODO: make columns in df and remove cols from writing??
 TODO: choose what threads and what process
 TODO: extarct relvant traffic data, timed process? as tarffic prediction
+TODO: insert deaf nodes to collision algo (collisions)
+TODO: goal node should detect closest previous node (A*)
 
 """
 import time
