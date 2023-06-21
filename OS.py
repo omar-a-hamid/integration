@@ -20,6 +20,7 @@ TODO: open a thread to save the df
 TODO: a task to act as a manger, maybe pool, that will call other tasks to handle other files
 TODO: make columns in df and remove cols from writing??
 TODO: choose what threads and what process
+TODO: extarct relvant traffic data, timed process? as tarffic prediction
 
 """
 import time
