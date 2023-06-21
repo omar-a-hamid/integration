@@ -19,6 +19,7 @@ TODO: approxmate time to time step, here or in A*
 TODO: open a thread to save the df
 TODO: a task to act as a manger, maybe pool, that will call other tasks to handle other files
 TODO: make columns in df and remove cols from writing??
+TODO: choose what threads and what process
 
 """
 import time
@@ -53,6 +54,8 @@ def process_message(message):
         # print(process_message.df) 
 
         write_csv_procses=threading.Thread(target=write_csv,args=(process_message.df,))
+        write_csv_procses.daemon = True
+        
         write_csv_procses.start()        
 
 
@@ -63,8 +66,8 @@ def process_message(message):
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
-    
-    if ((routing_cmd in data) and data[routing_cmd]):
+    print((routing_cmd in data),(data[routing_cmd]==1) )
+    if ((routing_cmd in data) and (data[routing_cmd]==1)):
         route_processor(data)
 
 
@@ -83,15 +86,21 @@ def route_task(data):
                                         ,data[distination_pos_lat],data[distination_pos_lon],current_time)
         
         print("\n\nfastest route: \n",route_found)
-        # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
+        mqtt.mqtt_publish(str(route_found),TOPIC_TX)
 
 def route_processor(data):
     route_procses=threading.Thread(target=route_task,args=(data,))
+    # route_procses=  multiprocessing.Process(target=route_task,args=(data,))
+
+    route_procses.daemon = True
     route_procses.start()   
 
 
 def collisoins_task():
     while True:
+
+        # print(process_message.df.tail(1))
+        time.sleep(1)
         ...
     ...
 
@@ -116,16 +125,27 @@ if __name__ == '__main__':
     processes = []
 
     message_processor_process = threading.Thread(target=message_processor,args=(message_queue,))
+    message_processor_process.daemon = True
     message_processor_process.start()
     
     mqtt_process =  threading.Thread(target=mqtt.mqtt_task,args=())
+    mqtt_process.daemon = True
     mqtt_process.start()
 
     collision_process =  threading.Thread(target=collisoins_task,args=())
+    # collision_process =  multiprocessing.Process(target=collisoins_task,args=())
+
+    collision_process.daemon = True
     collision_process.start()
 
+    
+
     processes.append(mqtt_process)
-    processes.append(collision_process)
+    # processes.append(collision_process)
+    processes.append(message_processor_process)
+
+    # for procses in processes:
+        # procses.daemon = True
 
 
     
@@ -135,9 +155,14 @@ if __name__ == '__main__':
 
     except KeyboardInterrupt:
 
-        message_processor_process.join()
+        
+        # collision_process.terminate()
+
+        # message_processor_process.join()
 
         # Terminate the MQTT listener processes
         for procses in processes:
+            ...
             # p.terminate()
-            procses.join()
+            # procses.join()
+        
