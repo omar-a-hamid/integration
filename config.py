@@ -10,12 +10,12 @@ current_time = '2022-12-07 08:48:00'
 ##############################
 #json keys
 time_stamp          = '1'
-V_ID                = ''
-current_speed       = ''
+V_ID                = '2'
+current_speed       = '4'
 current_pos_lat     = '6'
 current_pos_lon     = '7'
 
-routing_cmd         = '2'
+routing_cmd         = '3'
 distination_pos_lat = '8'
 distination_pos_lon = '9'
 
