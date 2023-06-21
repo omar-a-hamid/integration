@@ -63,8 +63,11 @@ class Route:
 
         node_x, node_y = self.net.getNode(node).getCoord()
         goal_x, goal_y = self.net.getNode(self.goal_node).getCoord()
+        node_lon,node_lat =  self.net.convertXY2LonLat(node_x,node_y)
+        goal_lon,goal_lat =  self.net.convertXY2LonLat(goal_x,goal_y)
+
         # print("H: ",(((node_x - goal_x)**2 + (node_y - goal_y)**2)**0.5)/60)
-        return (((node_x - goal_x)**2 + (node_y - goal_y)**2)**0.5)/45
+        return (((node_lon - goal_lon)**2 + (node_lat - goal_lat)**2)**0.5)/45
         # return (((node_x - goal_x)**2 + (node_y - goal_y)**2)**0.5)
 
     def a_star(self,start_node, goal_node,time):
