@@ -159,7 +159,10 @@ class Route:
             
             # print("edge: ", )
         for i in range(0, len(edges)-1):
-            direction.append(edges[i].getConnections(edges[i+1])[0].getDirection())
+            current_direction=edges[i].getConnections(edges[i+1])[0].getDirection()
+            if current_direction=='s':
+                continue
+            direction.append(current_direction)
             (x,y) = edges[i].getConnections(edges[i+1])[0].getJunction().getCoord()
             # print(edges[i].getConnections(edges[i+1])[0])
             # print(edges[i].getConnections(edges[i+1])[0].getJunction().getID())
