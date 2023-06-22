@@ -111,14 +111,14 @@ class Collision:
     #TODO: check if distance in km
 
     
-    def XXX(self,data):
+    def mapV2N(self,data):
 
         v_ID = data[V_ID]
         node = self.get_closest_node(data[current_pos_lon],data[current_pos_lat])
         eta = self.get_eta(node,data[current_pos_lon],data[current_pos_lat])
         node_id = node.getID()
         # print(v_)
-        print(node_id)
+        # print("node: ",node_id)
         if(eta< (10/60/60)):
             v_df = pd.DataFrame([v_ID],index = [node_id],columns=[v_ID])
             # print(v_df)
@@ -138,7 +138,18 @@ class Collision:
 
             # print(self.nodes_df.tail())
             # print(self.nodes_df.loc)
-            print(self.nodes_df.loc[node_id, v_ID])
+            # print(self.nodes_df.loc[node_id, v_ID])
+            # print(self.nodes_df.loc[node_id].count())
+            V_counter = self.nodes_df.loc[node_id].count()
+            # print(self.nodes_df.loc[node_id])
+            v_ids = self.nodes_df.loc[node_id].dropna().values
+            # print("V id: ",v_ID)
+            # print("V ids: ",v_ids)
+
+            if (V_counter > 1):
+                # print("warning")
+                return v_ids
+
 
             # self.nodes_df
 
@@ -232,10 +243,16 @@ def test():
 
 
 
-    collision.XXX(data)
-    collision.XXX(data2)
-    collision.XXX(data3)
-    collision.XXX(data4)
+    res1 = collision.mapV2N(data)
+    res2 = collision.mapV2N(data2)
+    res3 = collision.mapV2N(data3)
+    res4 = collision.mapV2N(data4)
+
+    print(res1)
+    print(res2)
+    print(res3)
+    print(res4)
+
 
 
     df = collision.get_df()
