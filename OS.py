@@ -12,6 +12,10 @@ make a schadule to run the ML model
 avoid it here
 
 
+TODO: pass time from mqtt msg to routing 
+TODO: check if time is in data A*
+
+
 TODO: add collision
 TODO: add tarffic predictiton model
 
@@ -28,10 +32,17 @@ TODO: approxmate time to time step, here or in (A*)
 TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
 
 
-TODO: insert deaf nodes to collision algo (collisions)
+TODO: insert deaf nodes to collision algo (collisions), it will be in the same mqtt msg parse it there, 
+        when to remove them is another question, maybe allocate them in the same branch as the active node so when it updates it
+            updates too 
 
+
+####################################################################
 
 BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
+
+
+####################################################################
 
 DONE: change processing message to dump in csv file? 
 DONE: open a thread to save the df
@@ -112,7 +123,7 @@ def route_task(data):
                 "\ndestination: \n",data[distination_pos_lat],", ",data[distination_pos_lon])
         
         route_found = route.find_route(data[current_pos_lat],data[current_pos_lon]
-                                        ,data[distination_pos_lat],data[distination_pos_lon],current_time)
+                                        ,data[distination_pos_lat],data[distination_pos_lon],current_time) #TODO: pass time from mqtt msg 
         
         print("\n\nfastest route: \n",route_found)
         # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
