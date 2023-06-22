@@ -15,21 +15,25 @@ avoid it here
 TODO: add collision
 TODO: add tarffic predictiton model
 
-TODO: change processing message to dump in csv file? 
+TODO: extarct relvant traffic data, timed process? as tarffic prediction
 TODO: make sure data id in the right format/type
 
-TODO: approxmate time to time step, here or in A*
 
-TODO: a task to act as a manger, pool or magner, that will call other tasks to handle other files
 TODO: make columns in df and remove cols from writing??
 
-TODO: extarct relvant traffic data, timed process? as tarffic prediction
-TODO: insert deaf nodes to collision algo (collisions)
-TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
-
+TODO: a task to act as a manger, pool or magner, that will call other tasks to handle other files
 TODO: choose what threads and what process
 
+TODO: approxmate time to time step, here or in (A*)
+TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
 
+
+TODO: insert deaf nodes to collision algo (collisions)
+
+
+BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
+
+DONE: change processing message to dump in csv file? 
 DONE: open a thread to save the df
 DONE: goal node should detect closest previous node (A*)
 
@@ -49,6 +53,7 @@ import pandas as pd
 
 
 
+# multiprocessing.set_start_method(method="fork")
 
 message_queue = multiprocessing.Queue()
 mqtt=Mqtt_class(message_queue,TOPIC_RX)
@@ -80,7 +85,7 @@ def process_message(message):
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
-    print((routing_cmd in data),(data[routing_cmd]==1) )
+    # print((routing_cmd in data),(data[routing_cmd]==1) )
     if ((routing_cmd in data) and (data[routing_cmd]==1)):
         route_processor(data)
 
@@ -88,7 +93,7 @@ def process_message(message):
 process_message.df = pd.DataFrame()
 
 def route_task(data):
-    print("routing command found")
+    # print("routing command found")
 
     # if all([current_pos_lat, current_pos_lon , distination_pos_lat , distination_pos_lon]) in data:
     if all(s in data for s in (current_pos_lat,current_pos_lon , distination_pos_lat,distination_pos_lon)):
@@ -110,11 +115,13 @@ def route_processor(data):
     route_procses.start()   
 
 
-def collisoins_task():
+def collisoins_task(queue):
+    
     while True:
 
-        # print(process_message.df.tail(1))
+        print(process_message.df.tail(1))
         time.sleep(1)
+        print("collision",flush=True)
         ...
     ...
 
@@ -137,8 +144,17 @@ def write_csv(df=None):
 if __name__ == '__main__':
 
     processes = []
+    queue = multiprocessing.Queue()
+
+    collision_process =  multiprocessing.Process(target=collisoins_task,args=(queue))
+
+    collision_process.daemon = True
+    collision_process.start()
+    # collision_process.join()
+
 
     message_processor_process = threading.Thread(target=message_processor,args=(message_queue,))
+
     message_processor_process.daemon = True
     message_processor_process.start()
     
@@ -146,11 +162,7 @@ if __name__ == '__main__':
     mqtt_process.daemon = True
     mqtt_process.start()
 
-    collision_process =  threading.Thread(target=collisoins_task,args=())
-    # collision_process =  multiprocessing.Process(target=collisoins_task,args=())
-
-    collision_process.daemon = True
-    collision_process.start()
+    # collision_process =  threading.Thread(target=collisoins_task,args=())
 
     
 
@@ -165,6 +177,7 @@ if __name__ == '__main__':
     
     try:
         while True:
+            print("main")
             time.sleep(1)
 
     except KeyboardInterrupt:

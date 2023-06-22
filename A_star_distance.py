@@ -3,12 +3,13 @@ import sumolib
 
 import pandas as pd
 import math
+import warnings
+
+warnings.filterwarnings('ignore')
 #TODO: bug some time it fetches the speed zero
 #TODO: time incrmenting
 """
-TODO: 
 
-import traffic data, csv? 
 
 csv --> 
     
