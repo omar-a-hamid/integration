@@ -55,7 +55,11 @@ import pandas as pd
 
 # multiprocessing.set_start_method(method="fork")
 
+# message_queue = multiprocessing.Manager().Queue()
 message_queue = multiprocessing.Queue()
+
+# multiprocessing.freeze_support()
+
 mqtt=Mqtt_class(message_queue,TOPIC_RX)
 route=Route("map/")
 
@@ -118,10 +122,21 @@ def route_processor(data):
 def collisoins_task(queue):
     
     while True:
+        data = queue.get()
+        if data:
+            try:
+                
+                data_df = pd.DataFrame(data,index = [data[time_stamp]])
+                df = pd.concat([process_message.df,data_df ])
 
-        print(process_message.df.tail(1))
-        time.sleep(1)
-        print("collision",flush=True)
+
+                # message_queue.put(data)  # Put the message into the queue for processing
+            except json.JSONDecodeError as e:
+                print("Error decoding message:", e)
+
+            print(df.tail(1),flush=True)
+            time.sleep(1)
+            print("collision",flush=True)
         ...
     ...
 
@@ -140,16 +155,16 @@ def write_csv(df=None):
     # df.to_csv (r'data.csv', index = False, header=False, mode='a')
 
 
-
-if __name__ == '__main__':
-
+def main():
     processes = []
-    queue = multiprocessing.Queue()
+    # queue = multiprocessing.Queue()
 
-    collision_process =  multiprocessing.Process(target=collisoins_task,args=(queue))
+    collision_process =  multiprocessing.Process(target=collisoins_task,args=(message_queue,))
 
     collision_process.daemon = True
     collision_process.start()
+    # multiprocessing.freeze_support()
+
     # collision_process.join()
 
 
@@ -157,10 +172,14 @@ if __name__ == '__main__':
 
     message_processor_process.daemon = True
     message_processor_process.start()
+    # multiprocessing.freeze_support()
+
     
     mqtt_process =  threading.Thread(target=mqtt.mqtt_task,args=())
     mqtt_process.daemon = True
     mqtt_process.start()
+    # multiprocessing.freeze_support()
+
 
     # collision_process =  threading.Thread(target=collisoins_task,args=())
 
@@ -177,7 +196,7 @@ if __name__ == '__main__':
     
     try:
         while True:
-            print("main")
+            # print("main")
             time.sleep(1)
 
     except KeyboardInterrupt:
@@ -192,4 +211,8 @@ if __name__ == '__main__':
             ...
             # p.terminate()
             # procses.join()
-        
+
+
+if __name__ == '__main__':
+
+    main()
