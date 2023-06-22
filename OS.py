@@ -14,6 +14,8 @@ avoid it here
 
 TODO: pass time from mqtt msg to routing 
 TODO: check if time is in data A*
+TODO: pass routed coordinates and direction to vehicle
+
 
 
 TODO: add collision
@@ -53,7 +55,7 @@ DONE: goal node should detect closest previous node (A*)
 """
 import time
 import multiprocessing
-import  json
+import json
 import threading
 
 from A_star_distance import Route
@@ -88,7 +90,7 @@ def process_message(message):
 
     try:
         data = json.loads(str(message))
-        data_df = pd.DataFrame(data,index = [data[time_stamp]])
+        data_df = pd.DataFrame(data,index = [data[TIME_STAMP]])
         process_message.df = pd.concat([process_message.df,data_df ])
         # print(process_message.df) 
 
@@ -106,8 +108,8 @@ def process_message(message):
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
-    # print((routing_cmd in data),(data[routing_cmd]==1) )
-    if ((routing_cmd in data) and (data[routing_cmd]==1)):
+    # print((ROUTING_CMD in data),(data[ROUTING_CMD]==1) )
+    if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
         route_processor(data)
 
 
@@ -116,17 +118,18 @@ process_message.df = pd.DataFrame()
 def route_task(data):
     # print("routing command found")
 
-    # if all([current_pos_lat, current_pos_lon , distination_pos_lat , distination_pos_lon]) in data:
-    if all(s in data for s in (current_pos_lat,current_pos_lon , distination_pos_lat,distination_pos_lon)):
+    # if all([CURRENT_POS_LAT, CURRENT_POS_LON , DISTINATION_POS_LAT , DISTINATION_POS_LON]) in data:
+    if all(s in data for s in (CURRENT_POS_LAT,CURRENT_POS_LON , DISTINATION_POS_LAT,DISTINATION_POS_LON)):
         print("start and destination found, Routing..")
-        print("start: \n",data[current_pos_lat],", ",data[current_pos_lon],
-                "\ndestination: \n",data[distination_pos_lat],", ",data[distination_pos_lon])
+        print("start: \n",data[CURRENT_POS_LAT],", ",data[CURRENT_POS_LON],
+                "\ndestination: \n",data[DISTINATION_POS_LAT],", ",data[DISTINATION_POS_LON])
         
-        route_found = route.find_route(data[current_pos_lat],data[current_pos_lon]
-                                        ,data[distination_pos_lat],data[distination_pos_lon],current_time) #TODO: pass time from mqtt msg 
+        route_found = route.find_route(data[CURRENT_POS_LAT],data[CURRENT_POS_LON]
+                                        ,data[DISTINATION_POS_LAT],data[DISTINATION_POS_LON],current_time) #TODO: pass time from mqtt msg 
         
         print("\n\nfastest route: \n",route_found)
         # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
+        mqtt_publish("route",str(route_found))
 
 def route_processor(data):
     route_procses=threading.Thread(target=route_task,args=(data,))
@@ -142,18 +145,17 @@ def collisoins_task(queue):
     
     while True:
         data = queue.get()
-        if data:
+        if data: #this is  json data
             try:
                 
-                data_df = pd.DataFrame(data,index = [data[time_stamp]])
-                df = pd.concat([process_message.df,data_df ])
+                # data_df = pd.DataFrame(data,index = [data[TIME_STAMP]])
+                # df = pd.concat([process_message.df,data_df ])
 
-
-                # message_queue.put(data)  # Put the message into the queue for processing
+                ...
             except json.JSONDecodeError as e:
                 print("Error decoding message:", e)
 
-            print(df.tail(1),flush=True)
+            # print(df.tail(1),flush=True)
             print("collision process",flush=True)
             # time.sleep(1)
 
@@ -174,6 +176,18 @@ def write_csv(df=None):
 
     # df.to_csv (r'data.csv', index = False, header=False, mode='a')
 
+def mqtt_publish(key, value,topic_tx = TOPIC_TX):
+
+
+    # key = "1"
+    # value = "X12"
+    dict={key:value}
+    json_msg = json.dumps(dict)
+
+    # print(json_msg)
+    mqtt.mqtt_publish(str(json_msg),topic_tx)
+
+    ...
 
 def main():
 

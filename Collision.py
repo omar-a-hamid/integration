@@ -114,8 +114,8 @@ class Collision:
     def mapV2N(self,data):
 
         v_ID = data[V_ID]
-        node = self.get_closest_node(data[current_pos_lon],data[current_pos_lat])
-        eta = self.get_eta(node,data[current_pos_lon],data[current_pos_lat])
+        node = self.get_closest_node(data[CURRENT_POS_LON],data[CURRENT_POS_LAT])
+        eta = self.get_eta(node,data[CURRENT_POS_LON],data[CURRENT_POS_LAT])
         node_id = node.getID()
         # print(v_)
         # print("node: ",node_id)
@@ -155,7 +155,7 @@ class Collision:
 
             ...
             # v = pd.DataFrame(v_ID,index = node)
-                    # data_df = pd.DataFrame(data,index = [data[time_stamp]])
+                    # data_df = pd.DataFrame(data,index = [data[TIME_STAMP]])
         # process_message.df = pd.concat([process_message.df,data_df ])
 
 
