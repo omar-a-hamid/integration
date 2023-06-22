@@ -14,12 +14,12 @@ avoid it here
 
 TODO: pass time from mqtt msg to routing 
 TODO: check if time is in data A*
-TODO: pass routed coordinates and direction to vehicle
+
+TODO: pass routed coordinates and direction to vehicle, check loc and send when nearby
 
 
 
-TODO: add collision
-TODO: add tarffic predictiton model
+TODO: add tarffic predictiton model??
 
 TODO: extarct relvant traffic data, timed process? as tarffic prediction
 TODO: make sure data id in the right format/type
@@ -27,8 +27,6 @@ TODO: make sure data id in the right format/type
 
 TODO: make columns in df and remove cols from writing??
 
-TODO: a task to act as a manger, pool or magner, that will call other tasks to handle other files
-TODO: choose what threads and what process
 
 TODO: approxmate time to time step, here or in (A*)
 TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
@@ -38,6 +36,9 @@ TODO: insert deaf nodes to collision algo (collisions), it will be in the same m
         when to remove them is another question, maybe allocate them in the same branch as the active node so when it updates it
             updates too 
 
+TODO: a task to act as a manger, pool or magner, that will call other tasks to handle other files
+TODO: choose what threads and what process
+
 
 ####################################################################
 
@@ -46,8 +47,10 @@ BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
 
 ####################################################################
 
+DONE: add collision
 DONE: change processing message to dump in csv file? 
 DONE: open a thread to save the df
+DONE: send warning
 DONE: goal node should detect closest previous node (A*)
 
 
@@ -61,7 +64,7 @@ import threading
 from A_star_distance import Route
 from MQTT import Mqtt_class
 from config import *
-
+from Collision import Collision
 import pandas as pd 
 
 
@@ -129,7 +132,7 @@ def route_task(data):
         
         print("\n\nfastest route: \n",route_found)
         # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
-        mqtt_publish("route",str(route_found))
+        mqtt_publish([ROUTE],[str(route_found)])
 
 def route_processor(data):
     route_procses=threading.Thread(target=route_task,args=(data,))
@@ -140,20 +143,20 @@ def route_processor(data):
 
 
 def collisoins_task(queue):
-    
+    collision = Collision("map/")
+
+    # collision.mapV2N(data)
     print("collision process started",flush=True)
     
     while True:
         data = queue.get()
+    
         if data: #this is  json data
-            try:
-                
-                # data_df = pd.DataFrame(data,index = [data[TIME_STAMP]])
-                # df = pd.concat([process_message.df,data_df ])
-
-                ...
-            except json.JSONDecodeError as e:
-                print("Error decoding message:", e)
+            collision_v = collision.mapV2N(data)
+            if len(collision_v)>1:
+                for id in collision_v:
+                    # mqtt_publish({COLLISION_WARNING: 1, V_ID: id})
+                    mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
 
             # print(df.tail(1),flush=True)
             print("collision process",flush=True)
@@ -176,13 +179,13 @@ def write_csv(df=None):
 
     # df.to_csv (r'data.csv', index = False, header=False, mode='a')
 
-def mqtt_publish(key, value,topic_tx = TOPIC_TX):
+def mqtt_publish(keys, values,topic_tx = TOPIC_TX):
 
 
     # key = "1"
     # value = "X12"
-    dict={key:value}
-    json_msg = json.dumps(dict)
+    data_dict =dict(zip(keys, values))
+    json_msg = json.dumps(data_dict)
 
     # print(json_msg)
     mqtt.mqtt_publish(str(json_msg),topic_tx)

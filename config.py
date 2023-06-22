@@ -22,5 +22,9 @@ DISTINATION_POS_LON = "9"
 OBSTACLE_FLAG       = ""
 OBSTACLE_SPEED      = ""
 
-
+##############################
+V_ID_TX             = "V_ID"
+COLLISION_WARNING   = "collision warning"
+ROUTE               = "ROUTE"
+ 
 

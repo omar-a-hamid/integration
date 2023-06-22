@@ -113,6 +113,26 @@ class Collision:
     
     def mapV2N(self,data):
 
+        """
+            V ID    a1   a2   a3   ... a97  a98  a99
+        Nodes
+           n1        a1
+           n2        0   p2
+           n3        0   a2
+           n4        0        a3
+           .
+           .
+           .
+           n97
+           n98
+           n99
+        
+        
+        
+        
+        
+        
+        """
         v_ID = data[V_ID]
         node = self.get_closest_node(data[CURRENT_POS_LON],data[CURRENT_POS_LAT])
         eta = self.get_eta(node,data[CURRENT_POS_LON],data[CURRENT_POS_LAT])
@@ -121,10 +141,7 @@ class Collision:
         # print("node: ",node_id)
         if(eta< (10/60/60)):
             v_df = pd.DataFrame([v_ID],index = [node_id],columns=[v_ID])
-            # print(v_df)
-            # self.nodes_df = pd.merge(self.nodes_df, v_df,how='inner', on='x1')
-            # self.nodes_df = pd.merge(self.nodes_df, v_df,how='right', on=str(node_id))
-            # self.nodes_df = pd.merge(self.nodes_df, v_df, how='left', left_index=True, right_index=True)
+
 
             if v_ID in self.nodes_df.columns:
                 self.nodes_df = self.nodes_df.drop(columns=[v_ID])
@@ -149,6 +166,7 @@ class Collision:
             if (V_counter > 1):
                 # print("warning")
                 return v_ids
+            return []
 
 
             # self.nodes_df
