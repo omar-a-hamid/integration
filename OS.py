@@ -55,13 +55,18 @@ import pandas as pd
 
 # multiprocessing.set_start_method(method="fork")
 
+
+route=Route("map/")
 # message_queue = multiprocessing.Manager().Queue()
 message_queue = multiprocessing.Queue()
+collision_message_queue = multiprocessing.Queue()
+
 
 # multiprocessing.freeze_support()
 
 mqtt=Mqtt_class(message_queue,TOPIC_RX)
-route=Route("map/")
+# queue = multiprocessing.Queue()
+
 
 
 
@@ -86,6 +91,7 @@ def process_message(message):
         # print(df) 
 
         # message_queue.put(data)  # Put the message into the queue for processing
+        collision_message_queue.put(data)
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
@@ -109,7 +115,7 @@ def route_task(data):
                                         ,data[distination_pos_lat],data[distination_pos_lon],current_time)
         
         print("\n\nfastest route: \n",route_found)
-        mqtt.mqtt_publish(str(route_found),TOPIC_TX)
+        # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
 
 def route_processor(data):
     route_procses=threading.Thread(target=route_task,args=(data,))
@@ -120,6 +126,8 @@ def route_processor(data):
 
 
 def collisoins_task(queue):
+    
+    print("collision process started",flush=True)
     
     while True:
         data = queue.get()
@@ -135,8 +143,9 @@ def collisoins_task(queue):
                 print("Error decoding message:", e)
 
             print(df.tail(1),flush=True)
-            time.sleep(1)
-            print("collision",flush=True)
+            print("collision process",flush=True)
+            # time.sleep(1)
+
         ...
     ...
 
@@ -156,10 +165,11 @@ def write_csv(df=None):
 
 
 def main():
-    processes = []
-    # queue = multiprocessing.Queue()
 
-    collision_process =  multiprocessing.Process(target=collisoins_task,args=(message_queue,))
+
+    processes = []
+
+    collision_process =  multiprocessing.Process(target=collisoins_task,args=(collision_message_queue,))
 
     collision_process.daemon = True
     collision_process.start()
@@ -186,7 +196,7 @@ def main():
     
 
     processes.append(mqtt_process)
-    # processes.append(collision_process)
+    processes.append(collision_process)
     processes.append(message_processor_process)
 
     # for procses in processes:
@@ -208,9 +218,13 @@ def main():
 
         # Terminate the MQTT listener processes
         for procses in processes:
-            ...
-            # p.terminate()
-            # procses.join()
+            try:
+                procses.terminate()
+                procses.join()
+                ...
+            except:
+                ...
+
 
 
 if __name__ == '__main__':
