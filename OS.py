@@ -12,18 +12,28 @@ make a schadule to run the ML model
 avoid it here
 
 
-TODO: add the collision and the tarffic predictiton model
+TODO: add collision
+TODO: add tarffic predictiton model
+
 TODO: change processing message to dump in csv file? 
-TODO: make sure data id in the right format/type 
-TODO: approxmate time to time step, here or in A* 
-TODO: open a thread to save the df
-TODO: a task to act as a manger, maybe pool, that will call other tasks to handle other files
+TODO: make sure data id in the right format/type
+
+TODO: approxmate time to time step, here or in A*
+
+TODO: a task to act as a manger, pool or magner, that will call other tasks to handle other files
 TODO: make columns in df and remove cols from writing??
-TODO: choose what threads and what process
+
 TODO: extarct relvant traffic data, timed process? as tarffic prediction
 TODO: insert deaf nodes to collision algo (collisions)
-TODO: goal node should detect closest previous node (A*)
 TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
+
+TODO: choose what threads and what process
+
+
+DONE: open a thread to save the df
+DONE: goal node should detect closest previous node (A*)
+
+
 
 """
 import time
