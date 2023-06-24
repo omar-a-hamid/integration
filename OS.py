@@ -12,6 +12,9 @@ make a schadule to run the ML model
 avoid it here
 
 
+#TODO: process each msg exatract street and time stamp and speed append it to a data frame, 
+            save this to csv files on intervals/events right befor calling ML model 
+
 TODO: pass time from mqtt msg to routing 
 TODO: check if time is in data A*
 
@@ -22,7 +25,7 @@ TODO: pass routed coordinates and direction to vehicle, check loc and send when 
 TODO: add tarffic predictiton model??
 
 TODO: extarct relvant traffic data, timed process? as tarffic prediction
-TODO: make sure data id in the right format/type
+TODO: make sure data id in the right format/type when RX from mqtt 
 
 
 TODO: make columns in df and remove cols from writing??
@@ -38,6 +41,8 @@ TODO: insert deaf nodes to collision algo (collisions), it will be in the same m
 
 TODO: a task to act as a manger, pool or magner, that will call other tasks to handle other files
 TODO: choose what threads and what process
+
+
 
 
 ####################################################################
@@ -76,7 +81,7 @@ route=Route("map/")
 # message_queue = multiprocessing.Manager().Queue()
 message_queue = multiprocessing.Queue()
 collision_message_queue = multiprocessing.Queue()
-
+lock_data = multiprocessing.Lock() #a lock to mange racing condtions on csvm create another one for each file
 
 # multiprocessing.freeze_support()
 
@@ -174,8 +179,8 @@ def message_processor(queue_msg):
 
 
 def write_csv(df=None):
-
-    df.to_csv (r'data.csv', index = False, header=True)
+    with lock_data:
+        df.to_csv (r'data.csv', index = False, header=True)
 
     # df.to_csv (r'data.csv', index = False, header=False, mode='a')
 
