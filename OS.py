@@ -11,8 +11,9 @@ maybe force input the routing or write to hostorical data
 make a schadule to run the ML model
 avoid it here
 
+TODO: remove "current_time" from config file
 
-#TODO: process each msg exatract street and time stamp and speed append it to a data frame, 
+TODO: process each msg exatract street and time stamp and speed append it to a data frame, 
             save this to csv files on intervals/events right befor calling ML model 
 
 TODO: pass time from mqtt msg to routing 
