@@ -1,17 +1,20 @@
 import paho.mqtt.client as paho
 from paho import mqtt
+from config import *
 
 
 class Mqtt_class:
 
-    USER_NAME= "OmarA"
-    PASS_WORD= "@A12345678"
-    SERVER_URL= "efa5bbcfa6a14bce91cbbe7daf25a2b5.s2.eu.hivemq.cloud"
-    PORT= 8883
-    TOPIC = "test1"
+
     
 
-    def __init__(self,message_queue, topic=TOPIC) -> None:
+    def __init__(self,message_queue, topic=TOPIC_RX) -> None:
+
+        self.USER_NAME= USER_NAME
+        self.PASS_WORD= PASS_WORD
+        self.SERVER_URL= SERVER_URL
+        self.PORT= 8883
+        self.TOPIC = topic
 
         self.client = paho.Client(client_id="", userdata=None, protocol=paho.MQTTv5)
         self.client.on_connect = self.on_connect
