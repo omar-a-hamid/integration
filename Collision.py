@@ -175,7 +175,7 @@ class Collision:
             # v = pd.DataFrame(v_ID,index = node)
                     # data_df = pd.DataFrame(data,index = [data[TIME_STAMP]])
         # process_message.df = pd.concat([process_message.df,data_df ])
-
+        return []
 
 
 
