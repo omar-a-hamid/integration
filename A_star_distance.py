@@ -36,17 +36,34 @@ class Route:
     
     def __init__(self,path):
 
-        self.ds = pd.read_csv(path+'traffic.csv')
-        self.df = pd.pivot_table(self.ds,index = 'dateandtime')
+        # self.ds = pd.read_csv(path+'traffic.csv')
+        # self.df = pd.pivot_table(self.ds,index = 'dateandtime')
         self.net = sumolib.net.readNet(path+'osm.net.xml')
-        # traci.start(["sumo", "-c", path+"osm.sumocfg"])
+
+
+
+        self.df = pd.read_csv(path+'traffic.csv', index_col="dateandtime")
+        self.df.index = pd.to_datetime(self.df.index)
+        # self.df['dateandtime'] = pd.to_datetime(self.df['dateandtime'])
+        
 
     
 
     def get_traffic(self,edge,time): 
 
+        res = None
+        # res = self.df. timestamp.searchsorted(time)
+        # df = self.df.set_index('dateandtime')
+        time=  pd.to_datetime(time)
+        # print (self.df.index.get_loc(time, method='nearest'))
+        closest_time = self.df.index[self.df.index.get_loc(time, method='nearest')]
+        # print (idx)
+        # df = self.df.set_index('dateandtime')
+        # df.index.get_loc(time, method='nearest')
+        # res = self.df.index.get_loc(time, method='nearest')
+        # print(res)
         try: 
-            return self.df.loc[str(time), str(edge)]
+            return self.df.loc[closest_time, str(edge)]
         except:
             return 60
 
@@ -215,6 +232,7 @@ class Route:
 def test():
 
     time = '2022-12-07 08:48:00'
+    # 
     route=Route("map/")
     # s_lat,s_lon = 30.065080, 31.349080
     # g_lat,g_lon = 30.062221, 31.349503
@@ -222,9 +240,19 @@ def test():
     s_lat,s_lon = 30.06288510254581 ,  31.34526851298622 
     g_lat,g_lon =  30.060972260514543 ,  31.34990337023007
 
+    result = route.get_traffic( "-178543139#2",time)
 
-    shortest_path = route.find_route(s_lat,s_lon, g_lat,g_lon ,time)
-    print(shortest_path)
+    print(result)
+
+    time = '2022-12-06 00:15:00'
+
+    result = route.get_traffic( "-178543139#2",time)
+
+    print(result)
+
+
+    # shortest_path = route.find_route(s_lat,s_lon, g_lat,g_lon ,time)
+    # print(shortest_path)
 
 if __name__=='__main__':
     test()
