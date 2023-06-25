@@ -29,13 +29,13 @@ PORT= 8883
 "speed":"30.06","front_obstacle":"30.06","front_distance":"30.06","left":"30.06","right":"30.06"}
 """
 
-TIME_STAMP          = "1"
+TIME_STAMP          = "dateandtime"
 
 
 V_ID                = "2"
 CURRENT_SPEED       = "4"
-CURRENT_POS_LAT     = "6"
-CURRENT_POS_LON     = "7"
+CURRENT_POS_LAT     = "CURRENT_POS_LAT"
+CURRENT_POS_LON     = "CURRENT_POS_LON"
 
 ROUTING_CMD         = "3"
 DISTINATION_POS_LAT = "8"
@@ -71,17 +71,41 @@ ROUTE               = "ROUTE"
  
 
 """
+
+
+{
+"dateandtime": "2022-12-07 08:48:00",
+"2": "A12",
+"3": 1,
+"4": 4,
+"CURRENT_POS_LAT": 30.06288510254581,
+"CURRENT_POS_LON": 31.34526851298622,
+"8": 30.060972260514543,
+"9": 31.34990337023007,
+"10": 1
+}
+
+
+
+
+
+
+
+
 {
 "1": '2022-12-07 08:48:00'
 "2": "A12",
 "3": 1,
 "4": 4,
-"6": 30.06288510254581,
-"7": 31.34526851298622,
+"CURRENT_POS_LAT": 30.06288510254581,
+"CURRENT_POS_LON": 31.34526851298622,
 "8": 30.060972260514543,
 "9": 31.34990337023007,
 "10": 1
 }
 "2023-06-20 23:10:12.603995",
+
+
+
 
 """

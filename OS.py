@@ -12,21 +12,16 @@ make a schadule to run the ML model
 avoid it here
 
 
-TODO: process each msg exatract street and time stamp and speed append it to a data frame, 
-            save this to csv files on intervals/events right befor calling ML model 
+             
 
 
 TODO: pass routed coordinates and direction to vehicle, check loc and send when nearby
 
 
+TODO: add tarffic predictiton model
 
-TODO: add tarffic predictiton model??
+TODO: make sure data id in the right format/type when RX from mqtt (explicitly cast it)(postpone till integration)
 
-TODO: extarct relvant traffic data, timed process? as tarffic prediction
-TODO: make sure data id in the right format/type when RX from mqtt 
-
-TODO: handle and save data for everything specially traffic
-TODO: make columns in df and remove cols from writing??
 
 
 TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
@@ -36,11 +31,14 @@ TODO: insert deaf nodes to collision algo (collisions), it will be in the same m
         when to remove them is another question, maybe allocate them in the same branch as the active node so when it updates it
             updates too 
 
+TODO: make columns in df and remove cols from writing??
 TODO: a task to act as a manger, pool or magner, that will call other tasks to handle other files
 TODO: choose what threads and what process
 
+####################################################################
 
-
+TEST: process each msg exatract street and time stamp and speed append it to a data frame,
+         save this to csv files on intervals/events right befor calling ML model
 
 ####################################################################
 
@@ -48,6 +46,9 @@ BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
 
 
 ####################################################################
+DONE: extarct relvant traffic data, timed process? as tarffic prediction
+
+DONE: handle and save data for everything specially traffic
 
 DONE: pass time from mqtt msg to routing 
 
@@ -64,9 +65,11 @@ DONE: goal node should detect closest previous node (A*)
 
 """
 import time
+from datetime import datetime
 import multiprocessing
 import json
 import threading
+
 
 from A_star_distance import Route
 from MQTT import Mqtt_class
@@ -84,7 +87,7 @@ route=Route("map/")
 message_queue = multiprocessing.Queue()
 collision_message_queue = multiprocessing.Queue()
 lock_data = multiprocessing.Lock() #a lock to mange racing condtions on csvm create another one for each file
-
+taraffic_data_lock = multiprocessing.Lock()
 # multiprocessing.freeze_support()
 
 mqtt=Mqtt_class(message_queue,TOPIC_RX)
@@ -167,6 +170,7 @@ def collisoins_task(queue):
                 for id in collision_v:
                     # mqtt_publish({COLLISION_WARNING: 1, V_ID: id})
                     mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
+                    print("eminent collision!",flush=True)
 
             # print(df.tail(1),flush=True)
             print("collision process",flush=True)
@@ -185,7 +189,9 @@ def message_processor(queue_msg):
 
 def write_csv(df=None):
     with lock_data:
+
         df.to_csv (r'data.csv', index = False, header=True)
+        
 
     # df.to_csv (r'data.csv', index = False, header=False, mode='a')
 
@@ -201,6 +207,66 @@ def mqtt_publish(keys, values,topic_tx = TOPIC_TX):
     mqtt.mqtt_publish(str(json_msg),topic_tx)
 
     ...
+
+def traffic_prediction_process():
+    # write saved data from df-->use lock? if  it is a process it will need a lock 
+    # if timed process no lock will be needed
+    # time triggered? 
+    # start ML model 
+    # 
+    while True: 
+        time.sleep(1)
+        if not datetime.utcnow().second:
+            print("traffic process start")
+
+            print(datetime.utcnow())
+            write_traffic_csv()
+            #call traffic prediction here!
+
+            #here is shared memory fetch df directly 
+
+            #this will need to be a process, the model will take so much 
+            #call csv write in this  thread than launch the "process"
+
+    ...
+#dump csv traffic data: 
+def write_traffic_csv():
+    #this will need to lock also the traffic data in routing algo 
+    traffic_df = process_message.df.copy()
+    traffic_df['edge'] = traffic_df.apply(lambda row: route.get_closest_edge( row['CURRENT_POS_LON'],row['CURRENT_POS_LAT']), axis=1)
+    traffic_df = traffic_df[['dateandtime','edge', 'spdK/m']]
+    traffic_df = pd.pivot_table(traffic_df ,index='dateandtime', values ='spdK/m' , columns ='edge')
+    # temp = temp.fillna(60)
+    traffic_df.index=pd.to_datetime(traffic_df.index)
+
+    traffic_df = traffic_df.groupby([
+            pd.Grouper(level=traffic_df.index.name
+                       , freq = '1T'  
+                      )]
+          ).mean()
+
+    with taraffic_data_lock:
+        
+        traffic_df.to_csv("traffic.csv",index=True,header=True)
+        # route.get_closest_edge(lon=traffic_df["CURRENT_POS_LAT"])
+        print("traffic process done")
+
+
+
+
+        ...
+    ...
+def predict_tarffic(lock):
+    with lock:
+        ...
+    #accuire lock 
+    #cache data
+    #relase lock 
+    #call traffic prediction and pass the dfs 
+    
+    ...
+
+
 
 def main():
 
@@ -227,6 +293,10 @@ def main():
     mqtt_process.daemon = True
     mqtt_process.start()
     # multiprocessing.freeze_support()
+
+    trafic_thread = threading.Thread(target=traffic_prediction_process,args=())
+    trafic_thread.daemon = True
+    trafic_thread.start()
 
 
     # collision_process =  threading.Thread(target=collisoins_task,args=())

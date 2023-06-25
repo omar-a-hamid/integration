@@ -158,6 +158,31 @@ class Route:
             closest_node = self.net.getEdge(closestEdge.getID()).getFromNode()
 
         return closest_node
+    def get_closest_edge(self,lon, lat):
+        
+        
+        # lon,lat =  31.347218, 30.058983
+        # 7154.87,8425.21
+        # 30.058983, 31.347218
+        # net = sumolib.net.readNet('myNet.net.xml')
+        radius = 0.1
+
+        x, y = self.net.convertLonLat2XY(lon, lat)
+        # x,y = 7154.87,8425.21
+        while(True):
+            edges = self.net.getNeighboringEdges(x, y, radius)
+            
+        # pick the closest edge
+            if len(edges) > 0:
+
+                distancesAndEdges = min(edges, key=lambda x: x[1])
+
+                closestEdge,dist = distancesAndEdges
+                # print(closestEdge)
+                break
+            radius *= 10
+        return closestEdge.getID()
+        
     def gerDirections(self, path):
         
         edges = []
