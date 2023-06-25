@@ -11,12 +11,10 @@ maybe force input the routing or write to hostorical data
 make a schadule to run the ML model
 avoid it here
 
-DONE: remove "current_time" from config file
 
 TODO: process each msg exatract street and time stamp and speed append it to a data frame, 
             save this to csv files on intervals/events right befor calling ML model 
 
-TODO: pass time from mqtt msg to routing 
 
 TODO: pass routed coordinates and direction to vehicle, check loc and send when nearby
 
@@ -27,7 +25,7 @@ TODO: add tarffic predictiton model??
 TODO: extarct relvant traffic data, timed process? as tarffic prediction
 TODO: make sure data id in the right format/type when RX from mqtt 
 
-
+TODO: handle and save data for everything specially traffic
 TODO: make columns in df and remove cols from writing??
 
 
@@ -51,6 +49,9 @@ BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
 
 ####################################################################
 
+DONE: pass time from mqtt msg to routing 
+
+DONE: remove "current_time" from config file
 DONE: check if time is in data A*
 DONE: approxmate time to time step, here or in (A*)
 DONE: add collision
