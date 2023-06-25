@@ -74,7 +74,7 @@ class Mqtt_class:
         self.client.loop_forever()
 
 
-    def mqtt_publish(self,payload="test paylaod",topic=TOPIC,qos=0):
+    def mqtt_publish(self,payload="test paylaod",topic=TOPIC_TX,qos=0):
         self.client.publish(topic, payload=payload, qos=qos)
 
     def mqtt_start(self):

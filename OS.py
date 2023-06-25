@@ -11,13 +11,12 @@ maybe force input the routing or write to hostorical data
 make a schadule to run the ML model
 avoid it here
 
-TODO: remove "current_time" from config file
+DONE: remove "current_time" from config file
 
 TODO: process each msg exatract street and time stamp and speed append it to a data frame, 
             save this to csv files on intervals/events right befor calling ML model 
 
 TODO: pass time from mqtt msg to routing 
-TODO: check if time is in data A*
 
 TODO: pass routed coordinates and direction to vehicle, check loc and send when nearby
 
@@ -32,7 +31,6 @@ TODO: make sure data id in the right format/type when RX from mqtt
 TODO: make columns in df and remove cols from writing??
 
 
-TODO: approxmate time to time step, here or in (A*)
 TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
 
 
@@ -53,6 +51,8 @@ BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
 
 ####################################################################
 
+DONE: check if time is in data A*
+DONE: approxmate time to time step, here or in (A*)
 DONE: add collision
 DONE: change processing message to dump in csv file? 
 DONE: open a thread to save the df
@@ -114,12 +114,15 @@ def process_message(message):
 
         # message_queue.put(data)  # Put the message into the queue for processing
         collision_message_queue.put(data)
+        if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
+            route_processor(data)
+
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
     # TODO: change this to dump in csv file? 
     # print((ROUTING_CMD in data),(data[ROUTING_CMD]==1) )
-    if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
-        route_processor(data)
+
+
 
 
 process_message.df = pd.DataFrame()
@@ -134,7 +137,7 @@ def route_task(data):
                 "\ndestination: \n",data[DISTINATION_POS_LAT],", ",data[DISTINATION_POS_LON])
         
         route_found = route.find_route(data[CURRENT_POS_LAT],data[CURRENT_POS_LON]
-                                        ,data[DISTINATION_POS_LAT],data[DISTINATION_POS_LON],current_time) #TODO: pass time from mqtt msg 
+                                        ,data[DISTINATION_POS_LAT],data[DISTINATION_POS_LON],data[TIME_STAMP]) #TODO: pass time from mqtt msg 
         
         print("\n\nfastest route: \n",route_found)
         # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
