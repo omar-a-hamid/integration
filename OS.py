@@ -13,6 +13,10 @@ avoid it here
 
 
              
+TODO: standarize mqtt msgs between sw and hw 
+TODO: request specific names in mqtt msgs for speed and time 
+TODO: request specific formats in mqtt msgs for speed and time(unit) 
+
 
 
 TODO: pass routed coordinates and direction to vehicle, check loc and send when nearby
@@ -47,6 +51,8 @@ TEST: process each msg exatract street and time stamp and speed append it to a d
 ####################################################################
 
 BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
+BUG: check if dataframe is empty before traffic df
+
 
 
 ####################################################################
