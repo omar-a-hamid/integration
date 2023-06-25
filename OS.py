@@ -19,6 +19,10 @@ TODO: pass routed coordinates and direction to vehicle, check loc and send when 
 
 
 TODO: add tarffic predictiton model
+TODO: make a csv for historical data and append to it? but how will we handel extending the model? 
+TODO: you can overwrite old predictions they will never be used 
+
+
 
 TODO: make sure data id in the right format/type when RX from mqtt (explicitly cast it)(postpone till integration)
 
@@ -258,6 +262,8 @@ def write_traffic_csv():
     ...
 def predict_tarffic(lock):
     with lock:
+        # ?? do i need a lock? what will I be opening? if all I need is new data, I already have the data frame I
+        # will just pass it to the ml model 
         ...
     #accuire lock 
     #cache data
