@@ -50,22 +50,27 @@ class Route:
     
 
     def get_traffic(self,edge,time): 
+        try:
+            res = None
+            # res = self.df. timestamp.searchsorted(time)
+            # df = self.df.set_index('dateandtime')
+            time=  pd.to_datetime(time)
+            # print (self.df.index.get_loc(time, method='nearest'))
+            closest_time = self.df.index[self.df.index.get_loc(time, method='nearest')]
+            # print (idx)
+            # df = self.df.set_index('dateandtime')
+            # df.index.get_loc(time, method='nearest')
+            # res = self.df.index.get_loc(time, method='nearest')
+            # print(res)
+            try: 
+                return self.df.loc[closest_time, str(edge)]
+            except:
+                return 60
 
-        res = None
-        # res = self.df. timestamp.searchsorted(time)
-        # df = self.df.set_index('dateandtime')
-        time=  pd.to_datetime(time)
-        # print (self.df.index.get_loc(time, method='nearest'))
-        closest_time = self.df.index[self.df.index.get_loc(time, method='nearest')]
-        # print (idx)
-        # df = self.df.set_index('dateandtime')
-        # df.index.get_loc(time, method='nearest')
-        # res = self.df.index.get_loc(time, method='nearest')
-        # print(res)
-        try: 
-            return self.df.loc[closest_time, str(edge)]
+                
         except:
             return 60
+
 
     def get_time(self,edge,time):
         try:
@@ -265,13 +270,15 @@ def test():
     s_lat,s_lon = 30.06288510254581 ,  31.34526851298622 
     g_lat,g_lon =  30.060972260514543 ,  31.34990337023007
 
-    result = route.get_traffic( "-178543139#2",time)
+    result = route.find_route(s_lat,s_lon,g_lat,g_lon,time)
 
-    print(result)
+    # result = route.get_traffic( "-178543139#2",time)
 
-    time = '2022-12-06 00:15:00'
+    # print(result)
 
-    result = route.get_traffic( "-178543139#2",time)
+    # time = '2022-12-06 00:15:00'
+
+    # result = route.get_traffic( "-178543139#2",time)
 
     print(result)
 
