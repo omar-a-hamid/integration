@@ -5,7 +5,7 @@
 # SERVER_URL= "efa5bbcfa6a14bce91cbbe7daf25a2b5.s2.eu.hivemq.cloud"
 
 # PORT= 8883
-# TOPIC_TX = "S2D"
+TOPIC_TX = "S2D"
 TOPIC_RX = "D2S"
 
 
@@ -23,8 +23,8 @@ PORT= 8883
 PASS_WORD= "TEST_GRAD_1p"
 USER_NAME= "TEST_GRAD"
 SERVER_URL=  "6acf025f42a74ff5b4b455a12145644c.s2.eu.hivemq.cloud"
-# TOPIC_RX = "outTopic"
-TOPIC_TX = "outTopic"
+TOPIC_RX = "outTopic"
+# TOPIC_TX = "outTopic"
 
 
 # const char* mqtt_server = "6acf025f42a74ff5b4b455a12145644c.s2.eu.hivemq.cloud";
@@ -50,7 +50,7 @@ TOPIC_TX = "outTopic"
 # CURRENT_POS_LAT     = "current lat"
 # CURRENT_POS_LON     = "current lon"
 
-ROUTING_CMD         = "routing command"
+# ROUTING_CMD         = "routing command"
 # DISTINATION_POS_LAT = "destinationn lat"
 # DISTINATION_POS_LON = "destination lon"
 
@@ -97,8 +97,9 @@ CURRENT_POS_LAT     = "clat"
 CURRENT_POS_LON     = "clon"
 
 ROUTING_CMD         = "r_cmd"
-DISTINATION_POS_LAT = "5"
-DISTINATION_POS_LON = "6"
+DISTINATION_POS_LON = "5"
+
+DISTINATION_POS_LAT = "6"
 
 OBSTACLE_FLAG       = "1"
 OBSTACLE_SPEED      = "obstacle speed"
