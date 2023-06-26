@@ -288,6 +288,9 @@ def write_traffic_csv():
         ...
     ...
 def predict_tarffic(lock):
+    #start process here call dirctly from file 
+    #dont write in csv
+    
     with lock:
         # ?? do i need a lock? what will I be opening? if all I need is new data, I already have the data frame I
         # will just pass it to the ml model 
@@ -310,7 +313,6 @@ def main():
 
     collision_process.daemon = True
     collision_process.start()
-    # multiprocessing.freeze_support()
 
     # collision_process.join()
 
@@ -319,17 +321,19 @@ def main():
 
     message_processor_process.daemon = True
     message_processor_process.start()
-    # multiprocessing.freeze_support()
 
     
     mqtt_process =  threading.Thread(target=mqtt.mqtt_task,args=())
     mqtt_process.daemon = True
     mqtt_process.start()
-    # multiprocessing.freeze_support()
 
     trafic_thread = threading.Thread(target=traffic_prediction_process,args=())
     trafic_thread.daemon = True
     trafic_thread.start()
+
+    # trafic_process = multiprocessing.Process(target=traffic_prediction_process,args=())
+    # trafic_process.daemon = True
+    # trafic_process.start()
 
 
     # collision_process =  threading.Thread(target=collisoins_task,args=())
@@ -339,6 +343,7 @@ def main():
     processes.append(mqtt_process)
     processes.append(collision_process)
     processes.append(message_processor_process)
+    processes.append(trafic_process)
 
     # for procses in processes:
         # procses.daemon = True
