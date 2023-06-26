@@ -48,9 +48,10 @@ TODO: choose what threads and what process
 TEST: process each msg exatract street and time stamp and speed append it to a data frame,
          save this to csv files on intervals/events right befor calling ML model
 
+TEST: U-turn may appear as 'R' maybe followed by an 'l' (A*)
+         
 ####################################################################
 
-BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
 
 
 

@@ -187,7 +187,11 @@ class Route:
                 break
             radius *= 10
         return closestEdge.getID()
-        
+    
+    def getAngle(self, startPoint, midPoint, endPoint):
+        ang = math.degrees(math.atan2(endPoint[1]-midPoint[1], endPoint[0]-midPoint[0]) - math.atan2(startPoint[1]-midPoint[1], startPoint[0]-midPoint[0]))
+        return ang 
+ 
     def gerDirections(self, path):
         
         edges = []
@@ -211,6 +215,18 @@ class Route:
             current_direction=edges[i].getConnections(edges[i+1])[0].getDirection()
             if current_direction=='s':
                 continue
+            elif current_direction == 'R' :
+                laneFromShape = edges[i].getConnections(edges[i+1])[0].getFromLane().getShape()
+                laneToShape   = edges[i].getConnections(edges[i+1])[0].getToLane().getShape()
+
+                laneFromSt = laneFromShape[0]
+                laneMidPos = laneFromShape[-1]
+                laneToEn   = laneToShape[-1]
+                angle = self.getAngle(laneFromSt,laneMidPos,laneToEn)
+                if angle <= -70 :                #TODO : ay threshold  lel left yaanie 
+                    current_direction = 'l'
+                elif angle < -10:
+                    current_direction = 'L'
             direction.append(current_direction)
             (x,y) = edges[i].getConnections(edges[i+1])[0].getJunction().getCoord()
             # print(edges[i].getConnections(edges[i+1])[0])
