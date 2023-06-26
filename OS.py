@@ -51,7 +51,6 @@ TEST: process each msg exatract street and time stamp and speed append it to a d
 ####################################################################
 
 BUG: U-turn may appear as 'R' maybe followed by an 'l' (A*)
-BUG: check if dataframe is empty before traffic df
 
 
 
@@ -127,6 +126,7 @@ def process_message(message):
         # print(df) 
 
         # message_queue.put(data)  # Put the message into the queue for processing
+        print("msg recived")
         collision_message_queue.put(data)
         if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
             route_processor(data)
@@ -155,7 +155,24 @@ def route_task(data):
         
         print("\n\nfastest route: \n",route_found)
         # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
-        mqtt_publish([ROUTE],[str(route_found)])
+        # mqtt_publish([ROUTE],[str(route_found)])
+        # route_task.df.index = [data[V_ID]]
+        # route_task.df.index = [data[V_ID]]
+
+        # new_row = {'Name': 'Alex', 'Age': 28, 'City': 'Tokyo'}
+
+        # Append the new row to the DataFrame using loc
+        # df = df.append(new_row, ignore_index=True)
+
+
+
+
+        # for index  in range(0,len(route_found),2):
+        #     route_task.df[route_found[index]]  = route_found[index+1]
+        # print( route_task.df)
+
+
+route_task.df = pd.DataFrame()
 
 def route_processor(data):
     route_procses=threading.Thread(target=route_task,args=(data,))
@@ -176,6 +193,8 @@ def collisoins_task(queue):
     
         if data: #this is  json data
             collision_v = collision.mapV2N(data)
+            print(collision_v,flush=True)
+
             if len(collision_v)>1:
                 for id in collision_v:
                     # mqtt_publish({COLLISION_WARNING: 1, V_ID: id})
@@ -226,11 +245,12 @@ def traffic_prediction_process():
     # 
     while True: 
         time.sleep(1)
-        if not datetime.utcnow().second:
+        if not datetime.utcnow().second: #TODO: seconds --> minutes 
             print("traffic process start")
 
             print(datetime.utcnow())
-            write_traffic_csv()
+            if not process_message.df.empty:
+                write_traffic_csv()
             #call traffic prediction here!
 
             #here is shared memory fetch df directly 
@@ -243,7 +263,7 @@ def traffic_prediction_process():
 def write_traffic_csv():
     #this will need to lock also the traffic data in routing algo 
     traffic_df = process_message.df.copy()
-    traffic_df['edge'] = traffic_df.apply(lambda row: route.get_closest_edge( row['CURRENT_POS_LON'],row['CURRENT_POS_LAT']), axis=1)
+    traffic_df['edge'] = traffic_df.apply(lambda row: route.get_closest_edge( row[CURRENT_POS_LON],row[CURRENT_POS_LAT]), axis=1)
     traffic_df = traffic_df[['dateandtime','edge', 'spdK/m']]
     traffic_df = pd.pivot_table(traffic_df ,index='dateandtime', values ='spdK/m' , columns ='edge')
     # temp = temp.fillna(60)

@@ -107,7 +107,7 @@ class Collision:
         node_lon,node_lat =  self.net.convertXY2LonLat(node_x,node_y)
         
 
-        return (((node_lon - lon)**2 + (node_lat - lat)**2)**0.5)/45
+        return (((node_lon - lon)**2 + (node_lat - lat)**2)**0.5)/45 #TODO: speed?
     #TODO: check if distance in km
 
     
@@ -146,6 +146,7 @@ class Collision:
             if v_ID in self.nodes_df.columns:
                 self.nodes_df = self.nodes_df.drop(columns=[v_ID])
             self.nodes_df = pd.merge(self.nodes_df, v_df, how='left', left_index=True, right_index=True)
+            print(self.nodes_df,flush=True)
             
             # if v_ID in self.nodes_df.columns:
             #     # self.nodes_df[v_ID] = v_df[v_ID]  # Overwrite the existing column
