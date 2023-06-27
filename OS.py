@@ -271,7 +271,7 @@ def collisoins_task(queue,v_instructions):
 
             if len(collision_v)>1:
                 for id in collision_v:
-                    mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID: id})
+                    mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID_TX: id})
                     v_instructions[id+"_W"] = 1
                     # v_instructions.update({id:{} })
 

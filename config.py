@@ -128,7 +128,7 @@ OBSTACLE_distance   = "2"
 
 ##############################
 
-V_ID_TX             = "V_ID"
+V_ID_TX             = "id"
 COLLISION_WARNING   = "collision warning"
 ROUTE               = "ROUTE"
  
