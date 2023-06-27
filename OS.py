@@ -166,11 +166,12 @@ def route_task(data,v_instructions):
         with taraffic_data_lock:
             route_found = route.find_route(data[CURRENT_POS_LAT],data[CURRENT_POS_LON]
                                         ,data[DISTINATION_POS_LAT],data[DISTINATION_POS_LON],data[TIME_STAMP]) #TODO: pass time from mqtt msg 
-        
+            route_found.append('f')
         print("\n\nfastest route: \n",route_found)
+
         # if data[V_ID+"_R"] not in v_instructions.keys():
         v_instructions[str(data[V_ID])+"_R"]=route_found
-        v_instructions[str(data[V_ID])+"_R"].appened('f')
+        # v_instructions[str(data[V_ID])+"_R"].appened('f')
         # print()
         # v_instructions.update({str(id+"_R"): 1})
 
@@ -270,11 +271,11 @@ def collisoins_task(queue,v_instructions):
 
             if len(collision_v)>1:
                 for id in collision_v:
-                    mqtt_publish({COLLISION_WARNING: 1, V_ID: id})
+                    mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID: id})
                     v_instructions[id+"_W"] = 1
                     # v_instructions.update({id:{} })
 
-                    mqtt_publish([V_ID_TX,COLLISION_WARNING ], [ id,1])
+                    # mqtt_publish([V_ID_TX,COLLISION_WARNING ], [ id,1])
                     # mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
                     # mqtt.mqtt_publish(str("Warning"),TOPIC_TX)
                     # mqtt.mqtt_publish(str("Warning"),TOPIC_TX)
@@ -283,6 +284,10 @@ def collisoins_task(queue,v_instructions):
                     print("eminent collision!",flush=True)
             else: 
                 v_instructions[str(data[V_ID])+"_W"] = 0
+                # mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID: id})
+
+                mqtt_publish([V_ID_TX,COLLISION_WARNING ], [ data[V_ID],0])
+
                 # v_instructions[(data[V_ID])]["W"] = 0
                 # sub_dict.update({"W": 0})
                 # v_instructions[data[V_ID]].update(sub_dict)
@@ -444,7 +449,7 @@ def main():
 
     trafic_thread = threading.Thread(target=traffic_prediction_process,args=())
     trafic_thread.daemon = True
-    trafic_thread.start()
+    # trafic_thread.start()
 
     # trafic_process = multiprocessing.Process(target=traffic_prediction_process,args=())
     # trafic_process.daemon = True
