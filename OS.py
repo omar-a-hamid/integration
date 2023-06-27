@@ -19,9 +19,6 @@ TODO: request specific formats in mqtt msgs for speed and time(unit)
 
 
 
-TODO: pass routed coordinates and direction to vehicle, check loc and send when nearby
-
-
 TODO: add tarffic predictiton model
 TODO: make a csv for historical data and append to it? but how will we handel extending the model? 
 TODO: you can overwrite old predictions they will never be used 
@@ -30,9 +27,6 @@ TODO: you can overwrite old predictions they will never be used
 
 TODO: make sure data id in the right format/type when RX from mqtt (explicitly cast it)(postpone till integration)
 
-
-
-TODO: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
 
 
 TODO: insert deaf nodes to collision algo (collisions), it will be in the same mqtt msg parse it there, 
@@ -44,6 +38,10 @@ TODO: a task to act as a manger, pool or magner, that will call other tasks to h
 TODO: choose what threads and what process
 
 ####################################################################
+
+
+TEST: pass routed coordinates and direction to vehicle, check loc and send when nearby
+TEST: how and when to send routing instrusctions? maybe some sort of Queue that will be triggered when on way to this coord?? 
 
 TEST: process each msg exatract street and time stamp and speed append it to a data frame,
          save this to csv files on intervals/events right befor calling ML model
