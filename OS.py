@@ -92,13 +92,15 @@ import pandas as pd
 # multiprocessing.set_start_method(method="fork")
 
 
-route=Route("map/")
 # message_queue = multiprocessing.Manager().Queue()
 message_queue = multiprocessing.Queue()
 collision_message_queue = multiprocessing.Queue()
 lock_data = multiprocessing.Lock() #a lock to mange racing condtions on csvm create another one for each file
 taraffic_data_lock = multiprocessing.Lock()
 # multiprocessing.freeze_support()
+
+
+route=Route("map/")
 
 mqtt=Mqtt_class(message_queue,TOPIC_RX)
 # queue = multiprocessing.Queue()
@@ -161,8 +163,8 @@ def route_task(data,v_instructions):
         print("start and destination found, Routing..")
         print("start: \n",data[CURRENT_POS_LAT],", ",data[CURRENT_POS_LON],
                 "\ndestination: \n",data[DISTINATION_POS_LAT],", ",data[DISTINATION_POS_LON])
-        
-        route_found = route.find_route(data[CURRENT_POS_LAT],data[CURRENT_POS_LON]
+        with taraffic_data_lock:
+            route_found = route.find_route(data[CURRENT_POS_LAT],data[CURRENT_POS_LON]
                                         ,data[DISTINATION_POS_LAT],data[DISTINATION_POS_LON],data[TIME_STAMP]) #TODO: pass time from mqtt msg 
         
         print("\n\nfastest route: \n",route_found)
@@ -321,30 +323,38 @@ def mqtt_publish(keys=None, values=None,dict_data = None,topic_tx = TOPIC_TX):
     ...
 
 def traffic_prediction_process():
-    # write saved data from df-->use lock? if  it is a process it will need a lock 
-    # if timed process no lock will be needed
-    # time triggered? 
-    # start ML model 
-    # 
+    # @ Nourhan Shafik
+    #add here things that will only happen once in the begining
     while True: 
         time.sleep(1)
-        if not datetime.utcnow().second: #TODO: seconds --> minutes 
-            print("traffic process start")
-
-            print(datetime.utcnow())
+        if not datetime.utcnow().second: # this part activates once every hour         #TODO: seconds --> minutes 
+            
             if not process_message.df.empty:
-                write_traffic_csv()
-            #call traffic prediction here!
+                new_data_df = process_traffic_data() #this data frame contains processed traffic data
+                                                     #this may be need to be edited to match your input  
+                # write_traffic_csv(new_data_df)     #save new data to new_traffic_data.csv
+            
 
-            #here is shared memory fetch df directly 
+            #add part that will happen every hour
+            #extend model, predict traffic
 
-            #this will need to be a process, the model will take so much 
+            
+
+            predicted_traffic_df = None #add your function here instead of the none
+
+            
+
+            write_traffic_csv(df = predicted_traffic_df,name = "traffic.csv") #use this to save dataframe to csv 
+
+
+            #ignore the following 
+            #this will need to be a process, the model will take so much power for a thread
             #call csv write in this  thread than launch the "process"
 
     ...
-#dump csv traffic data: 
-def write_traffic_csv():
-    #this will need to lock also the traffic data in routing algo 
+
+def process_traffic_data():
+
     traffic_df = process_message.df.copy()
     traffic_df['edge'] = traffic_df.apply(lambda row: route.get_closest_edge( row[CURRENT_POS_LON],row[CURRENT_POS_LAT]), axis=1)
     traffic_df = traffic_df[['dateandtime','edge', 'spdK/m']]
@@ -357,10 +367,16 @@ def write_traffic_csv():
                        , freq = '1T'  
                       )]
           ).mean()
+    return traffic_df
+
+
+#dump csv traffic data: 
+def write_traffic_csv(df, name = "new_traffic_data.csv"):
+    #this will need to lock also the traffic data in routing algo 
 
     with taraffic_data_lock:
         
-        traffic_df.to_csv("traffic.csv",index=True,header=True)
+        df.to_csv(name,index=True,header=True)
         # route.get_closest_edge(lon=traffic_df["CURRENT_POS_LAT"])
         print("traffic process done")
 

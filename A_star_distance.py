@@ -35,7 +35,7 @@ csv -->
 class Route:
 
     
-    def __init__(self,path):
+    def __init__(self,path, lock = None):
 
         # self.ds = pd.read_csv(path+'traffic.csv')
         # self.df = pd.pivot_table(self.ds,index = 'dateandtime')
