@@ -74,6 +74,8 @@ DONE: goal node should detect closest previous node (A*)
 
 
 """
+
+
 import time
 from datetime import datetime
 import multiprocessing
@@ -139,8 +141,9 @@ def process_message(message,v_instructions=None):
         # message_queue.put(data)  # Put the message into the queue for processing
         print("msg recived")
         collision_message_queue.put(data)
-        if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
-            route_processor(data,v_instructions)
+        # if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
+        #     route_processor(data,v_instructions)
+        route_processor(data,v_instructions)
 
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
@@ -167,6 +170,7 @@ def route_task(data,v_instructions):
         print("\n\nfastest route: \n",route_found)
         # if data[V_ID+"_R"] not in v_instructions.keys():
         v_instructions[str(data[V_ID])+"_R"]=route_found
+        # print()
         # v_instructions.update({str(id+"_R"): 1})
 
             
@@ -196,11 +200,36 @@ def route_task(data,v_instructions):
 route_task.df = pd.DataFrame()
 
 def route_processor(data,v_instructions):
-    route_procses=threading.Thread(target=route_task,args=(data,v_instructions))
-    # route_procses=  multiprocessing.Process(target=route_task,args=(data,))
+    if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
+                    
+        route_procses=threading.Thread(target=route_task,args=(data,v_instructions))
+        route_procses.daemon = True
+        route_procses.start()   
+    elif((data[V_ID]+"_R") in v_instructions and len(v_instructions[data[V_ID]+"_R"]) ): #BUG: if no routing command got first? 
+        # print(v_instructions)
+        next_direction_x,next_direction_y = v_instructions[data[V_ID]+"_R"][1][0],v_instructions[data[V_ID]+"_R"][1][1]
+        current_x, current_y =data[CURRENT_POS_LAT] ,data[CURRENT_POS_LON]
+        distance = route.get_distance(next_direction_x,next_direction_y,current_x,current_y) 
+        print ("distance to next turn: ",distance)
+        if(distance<=100):#TODO
+            mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], v_instructions[str(data[V_ID])+"_R"][0]])
+            # v_instructions[str(data[V_ID])+"_R"].pop(0)
+            v_instructions.update({
+                str(data[V_ID]+"_R"):v_instructions[data[V_ID]+"_R"][2:]
+                })
+            # del v_instructions[str(data[V_ID])+"_R"][0]
+            # del v_instructions[str(data[V_ID])+"_R"][0]
 
-    route_procses.daemon = True
-    route_procses.start()   
+
+        # if
+        # return (((next_direction_x - data[])**2 + (next_direction_y - goal_y)**2)**0.5)<=10
+        
+        ...
+        # v_instructions data[CURRENT_POS_LAT][CURRENT_POS_LON]
+        # self.net.convertXY2LonLat(goal_x,goal_y)
+
+
+
 
 
 def collisoins_task(queue,v_instructions):
@@ -236,7 +265,7 @@ def collisoins_task(queue,v_instructions):
                     v_instructions[id+"_W"] = 1
                     # v_instructions.update({id:{} })
 
-                    # mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
+                    mqtt_publish([V_ID_TX,COLLISION_WARNING ], [ id,1])
                     # mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
                     # mqtt.mqtt_publish(str("Warning"),TOPIC_TX)
                     # mqtt.mqtt_publish(str("Warning"),TOPIC_TX)
@@ -278,15 +307,15 @@ def write_csv(df=None):
 
     # df.to_csv (r'data.csv', index = False, header=False, mode='a')
 
-def mqtt_publish(keys=None, values=None,dict = None,topic_tx = TOPIC_TX):
+def mqtt_publish(keys=None, values=None,dict_data = None,topic_tx = TOPIC_TX):
 
 
     # key = "1"
     # value = "X12"
-    if dict == None:
-        dict =dict(zip(keys, values))
+    if dict_data == None:
+        dict_data =dict(zip(keys, values))
 
-    json_msg = json.dumps(dict)
+    json_msg = json.dumps(dict_data)
 
     # print(json_msg)
     mqtt.mqtt_publish(str(json_msg),topic_tx)

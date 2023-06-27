@@ -104,10 +104,13 @@ class Collision:
         # node_x, node_y = self.net.getNode(node).getCoord()
 
 
-        node_lon,node_lat =  self.net.convertXY2LonLat(node_x,node_y)
-        
+        # node_lon,node_lat =  self.net.convertXY2LonLat(node_x,node_y)
+        c_x,c_y =  self.net.convertLonLat2XY(lon,lat)
 
-        return (((node_lon - lon)**2 + (node_lat - lat)**2)**0.5)/45 #TODO: speed?
+        
+        return (((node_x - c_x)**2 + (node_y - c_y)**2)**0.5)/45/3.6 #TODO: speed?
+
+        # return (((node_lon - lon)**2 + (node_lat - lat)**2)**0.5)/45 #TODO: speed?
     #TODO: check if distance in km
 
     
@@ -139,7 +142,7 @@ class Collision:
         node_id = node.getID()
         # print(v_)
         # print("node: ",node_id)
-        if(eta< (10/60/60)):
+        if(eta< (10)):
             v_df = pd.DataFrame([v_ID],index = [node_id],columns=[v_ID])
 
 
