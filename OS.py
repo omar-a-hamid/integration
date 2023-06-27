@@ -170,6 +170,7 @@ def route_task(data,v_instructions):
         print("\n\nfastest route: \n",route_found)
         # if data[V_ID+"_R"] not in v_instructions.keys():
         v_instructions[str(data[V_ID])+"_R"]=route_found
+        v_instructions[str(data[V_ID])+"_R"].appened('f')
         # print()
         # v_instructions.update({str(id+"_R"): 1})
 
@@ -207,6 +208,13 @@ def route_processor(data,v_instructions):
         route_procses.start()   
     elif((data[V_ID]+"_R") in v_instructions and len(v_instructions[data[V_ID]+"_R"]) ): #BUG: if no routing command got first? 
         # print(v_instructions)
+        if(len(v_instructions[data[V_ID]+"_R"])==1): #TEST
+            print("destination reached")
+            mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], "destination" ])
+            v_instructions.update({
+                    str(data[V_ID]+"_R"): "" })
+            return
+
         next_direction_x,next_direction_y = v_instructions[data[V_ID]+"_R"][1][0],v_instructions[data[V_ID]+"_R"][1][1]
         current_x, current_y =data[CURRENT_POS_LAT] ,data[CURRENT_POS_LON]
         distance = route.get_distance(next_direction_x,next_direction_y,current_x,current_y) 
@@ -214,9 +222,10 @@ def route_processor(data,v_instructions):
         if(distance<=100):#TODO
             mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], v_instructions[str(data[V_ID])+"_R"][0]])
             # v_instructions[str(data[V_ID])+"_R"].pop(0)
-            v_instructions.update({
-                str(data[V_ID]+"_R"):v_instructions[data[V_ID]+"_R"][2:]
-                })
+            if(distance<=2):
+                v_instructions.update({
+                    str(data[V_ID]+"_R"):v_instructions[data[V_ID]+"_R"][2:]
+                    })
             # del v_instructions[str(data[V_ID])+"_R"][0]
             # del v_instructions[str(data[V_ID])+"_R"][0]
 
