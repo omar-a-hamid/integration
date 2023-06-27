@@ -64,8 +64,10 @@ class Mqtt_class:
     # print message, useful for checking if it was successful
     def on_message(self,client, userdata, msg):
         # print(msg.topic + " " + str(msg.qos) + " " + str(msg.payload.decode("utf-8")))
-        self.message_queue.put(str(msg.payload.decode("utf-8")))  # Put the message into the queue for processing
-
+        try:
+            self.message_queue.put(str(msg.payload.decode("utf-8")))  # Put the message into the queue for processing
+        except:
+            print("error decoding to utf-8",flush=True)
 
     def mqtt_subscribe(self, topic):
         self.client.subscribe(topic, qos=0)

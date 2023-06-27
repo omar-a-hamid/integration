@@ -103,10 +103,20 @@ taraffic_data_lock = multiprocessing.Lock()
 mqtt=Mqtt_class(message_queue,TOPIC_RX)
 # queue = multiprocessing.Queue()
 
+"""
+{
+"A12": {
+"warning flag": 1
+"ROUTE": "right"/left/straight
+}
 
 
+}
 
-def process_message(message):
+"""
+
+
+def process_message(message,v_instructions=None):
     # Process the received message
     # print("Processing message:", message)
 
@@ -130,7 +140,7 @@ def process_message(message):
         print("msg recived")
         collision_message_queue.put(data)
         if ((ROUTING_CMD in data) and (data[ROUTING_CMD]==1)):
-            route_processor(data)
+            route_processor(data,v_instructions)
 
     except json.JSONDecodeError as e:
         print("Error decoding message:", e)
@@ -142,7 +152,7 @@ def process_message(message):
 
 process_message.df = pd.DataFrame()
 
-def route_task(data):
+def route_task(data,v_instructions):
     # print("routing command found")
 
     # if all([CURRENT_POS_LAT, CURRENT_POS_LON , DISTINATION_POS_LAT , DISTINATION_POS_LON]) in data:
@@ -155,6 +165,16 @@ def route_task(data):
                                         ,data[DISTINATION_POS_LAT],data[DISTINATION_POS_LON],data[TIME_STAMP]) #TODO: pass time from mqtt msg 
         
         print("\n\nfastest route: \n",route_found)
+        # if data[V_ID+"_R"] not in v_instructions.keys():
+        v_instructions[str(data[V_ID])+"_R"]=route_found
+        # v_instructions.update({str(id+"_R"): 1})
+
+            
+        # v_instructions[data[V_ID]]["Route"] = str(route_found)
+        # print(v_instructions,flush=True)
+        # mqtt.mqtt_publish(str("Right"),TOPIC_TX)
+        # mqtt.mqtt_publish(str("Right"),TOPIC_TX)
+
         # mqtt.mqtt_publish(str(route_found),TOPIC_TX)
         # mqtt_publish([ROUTE],[str(route_found)])
         # route_task.df.index = [data[V_ID]]
@@ -175,15 +195,15 @@ def route_task(data):
 
 route_task.df = pd.DataFrame()
 
-def route_processor(data):
-    route_procses=threading.Thread(target=route_task,args=(data,))
+def route_processor(data,v_instructions):
+    route_procses=threading.Thread(target=route_task,args=(data,v_instructions))
     # route_procses=  multiprocessing.Process(target=route_task,args=(data,))
 
     route_procses.daemon = True
     route_procses.start()   
 
 
-def collisoins_task(queue):
+def collisoins_task(queue,v_instructions):
     collision = Collision("map/")
 
     # collision.mapV2N(data)
@@ -193,28 +213,61 @@ def collisoins_task(queue):
         data = queue.get()
     
         if data: #this is  json data
+            # print("collision process",flush=True)
+
             collision_v = collision.mapV2N(data)
-            print(collision_v,flush=True)
+            # print(collision_v,flush=True)
+            # if str(data[V_ID]) not in v_instructions.keys():
+            #     sub_dict = {data[V_ID]: {}}
+            #     v_instructions.update(sub_dict)
+
+            #     v_instructions[data[V_ID]+"_W"]
+                # v_instructions[data[V_ID]]= multiprocessing.Manager().dict()
+
+
+                
+            
+
+
 
             if len(collision_v)>1:
                 for id in collision_v:
-                    # mqtt_publish({COLLISION_WARNING: 1, V_ID: id})
-                    mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
+                    mqtt_publish({COLLISION_WARNING: 1, V_ID: id})
+                    v_instructions[id+"_W"] = 1
+                    # v_instructions.update({id:{} })
+
+                    # mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
+                    # mqtt_publish([COLLISION_WARNING, V_ID_TX], [1, id])
+                    # mqtt.mqtt_publish(str("Warning"),TOPIC_TX)
+                    # mqtt.mqtt_publish(str("Warning"),TOPIC_TX)
+
+
                     print("eminent collision!",flush=True)
+            else: 
+                v_instructions[str(data[V_ID])+"_W"] = 0
+                # v_instructions[(data[V_ID])]["W"] = 0
+                # sub_dict.update({"W": 0})
+                # v_instructions[data[V_ID]].update(sub_dict)
+
 
             # print(df.tail(1),flush=True)
-            print("collision process",flush=True)
+            # mqtt_publish(v_instructions[data[V_ID]]) #TEST
+            # mqtt_publish(dict=(v_instructions[data[V_ID]]))
+            # print(v_instructions)
+
+            
             # time.sleep(1)
 
         ...
     ...
 
-def message_processor(queue_msg):
+def message_processor(queue_msg,v_instructions=None):
 
     while True:
         message = queue_msg.get()
+        
         if message:            
-            process_message(message)
+            process_message(message,v_instructions)
 
 
 def write_csv(df=None):
@@ -225,13 +278,15 @@ def write_csv(df=None):
 
     # df.to_csv (r'data.csv', index = False, header=False, mode='a')
 
-def mqtt_publish(keys, values,topic_tx = TOPIC_TX):
+def mqtt_publish(keys=None, values=None,dict = None,topic_tx = TOPIC_TX):
 
 
     # key = "1"
     # value = "X12"
-    data_dict =dict(zip(keys, values))
-    json_msg = json.dumps(data_dict)
+    if dict == None:
+        dict =dict(zip(keys, values))
+
+    json_msg = json.dumps(dict)
 
     # print(json_msg)
     mqtt.mqtt_publish(str(json_msg),topic_tx)
@@ -290,7 +345,7 @@ def write_traffic_csv():
 def predict_tarffic(lock):
     #start process here call dirctly from file 
     #dont write in csv
-    
+
     with lock:
         # ?? do i need a lock? what will I be opening? if all I need is new data, I already have the data frame I
         # will just pass it to the ml model 
@@ -309,7 +364,15 @@ def main():
 
     processes = []
 
-    collision_process =  multiprocessing.Process(target=collisoins_task,args=(collision_message_queue,))
+
+    manager = multiprocessing.Manager()
+
+    # global v_instructions
+    v_instructions = manager.dict()
+
+    # v_instructions = {}
+
+    collision_process =  multiprocessing.Process(target=collisoins_task,args=(collision_message_queue,v_instructions))
 
     collision_process.daemon = True
     collision_process.start()
@@ -317,7 +380,7 @@ def main():
     # collision_process.join()
 
 
-    message_processor_process = threading.Thread(target=message_processor,args=(message_queue,))
+    message_processor_process = threading.Thread(target=message_processor,args=(message_queue,v_instructions))
 
     message_processor_process.daemon = True
     message_processor_process.start()
@@ -343,7 +406,7 @@ def main():
     processes.append(mqtt_process)
     processes.append(collision_process)
     processes.append(message_processor_process)
-    processes.append(trafic_process)
+    processes.append(trafic_thread)
 
     # for procses in processes:
         # procses.daemon = True
@@ -353,7 +416,7 @@ def main():
     try:
         while True:
             # print("main")
-            time.sleep(1)
+            time.sleep(10)
 
     except KeyboardInterrupt:
 

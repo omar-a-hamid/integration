@@ -5,8 +5,8 @@
 # SERVER_URL= "efa5bbcfa6a14bce91cbbe7daf25a2b5.s2.eu.hivemq.cloud"
 
 # PORT= 8883
-TOPIC_TX = "S2D"
-TOPIC_RX = "D2S"
+# TOPIC_TX = "S2D"
+# TOPIC_RX = "D2S"
 
 
 
@@ -23,6 +23,9 @@ PORT= 8883
 PASS_WORD= "TEST_GRAD_1p"
 USER_NAME= "TEST_GRAD"
 SERVER_URL=  "6acf025f42a74ff5b4b455a12145644c.s2.eu.hivemq.cloud"
+TOPIC_TX = "C2V_topic"
+# TOPIC_RX = "V2C_topic"
+
 TOPIC_RX = "outTopic"
 # TOPIC_TX = "outTopic"
 
