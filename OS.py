@@ -51,7 +51,7 @@ TEST: U-turn may appear as 'R' maybe followed by an 'l' (A*)
 ####################################################################
 
 
-
+BUG: warning stops being sent 
 
 ####################################################################
 DONE: extarct relvant traffic data, timed process? as tarffic prediction
@@ -97,6 +97,8 @@ message_queue = multiprocessing.Queue()
 collision_message_queue = multiprocessing.Queue()
 lock_data = multiprocessing.Lock() #a lock to mange racing condtions on csvm create another one for each file
 taraffic_data_lock = multiprocessing.Lock()
+MQTT_publish_lock = multiprocessing.Lock() #TEST
+
 # multiprocessing.freeze_support()
 
 
@@ -211,7 +213,9 @@ def route_processor(data,v_instructions):
         # print(v_instructions)
         if(len(v_instructions[data[V_ID]+"_R"])==1): #TEST
             print("destination reached")
-            mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], "destination" ])
+            with MQTT_publish_lock:
+
+                mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], "destination" ])
             v_instructions.update({
                     str(data[V_ID]+"_R"): "" })
             return
@@ -221,7 +225,9 @@ def route_processor(data,v_instructions):
         distance = route.get_distance(next_direction_x,next_direction_y,current_x,current_y) 
         print ("distance to next turn: ",distance)
         if(distance<=100):#TODO
-            mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], v_instructions[str(data[V_ID])+"_R"][0]])
+            with MQTT_publish_lock:
+
+                mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], v_instructions[str(data[V_ID])+"_R"][0]])
             # v_instructions[str(data[V_ID])+"_R"].pop(0)
             if(distance<=2):
                 v_instructions.update({
@@ -271,7 +277,9 @@ def collisoins_task(queue,v_instructions):
 
             if len(collision_v)>1:
                 for id in collision_v:
-                    mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID_TX: id})
+                    with MQTT_publish_lock:
+
+                        mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID_TX: id})
                     v_instructions[id+"_W"] = 1
                     # v_instructions.update({id:{} })
 
@@ -285,8 +293,8 @@ def collisoins_task(queue,v_instructions):
             else: 
                 v_instructions[str(data[V_ID])+"_W"] = 0
                 # mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID: id})
-
-                mqtt_publish([V_ID_TX,COLLISION_WARNING ], [ data[V_ID],0])
+                with MQTT_publish_lock:
+                    mqtt_publish([V_ID_TX,COLLISION_WARNING ], [ data[V_ID],0])
 
                 # v_instructions[(data[V_ID])]["W"] = 0
                 # sub_dict.update({"W": 0})
