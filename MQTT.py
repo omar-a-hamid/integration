@@ -126,7 +126,7 @@ class Mqtt_class:
         msg =   '''{
                 "dateandtime": "'''+str(datetime.utcnow()) +'''",
                 "id": "A'''+str(randint(10,99))+'''" ,
-                "r_cmd": 1,
+                "r_cmd": 0,
                 "clon": 31.3'''+str(randint(26813,54695))+''' ,
                 "clat":  30.0'''+str(randint(52832,71337))+''',
                 "spdK/m": '''+str(randint(0,60))+''',
