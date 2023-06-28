@@ -2,13 +2,17 @@ import paho.mqtt.client as paho
 from paho import mqtt
 from config import *
 
-
+from random import randint
+# from Queue import 
+from queue import Queue
+from time import sleep
+from datetime import datetime
 class Mqtt_class:
 
 
     
 
-    def __init__(self,message_queue, topic=TOPIC_RX) -> None:
+    def __init__(self,message_queue=None, topic=TOPIC_RX) -> None:
 
         self.USER_NAME= USER_NAME
         self.PASS_WORD= PASS_WORD
@@ -95,4 +99,51 @@ class Mqtt_class:
         self.mqtt_start()
         # while(True):
             # mqtt_loop()
+    def test(self):
 
+
+        """
+                {
+        "dateandtime": "2022-12-07 08:48:00",
+        "id": 1,
+        "r_cmd": 0,
+        "clon": 31.3461741,
+        "clat": 31.3461741,
+        "spdK/m": 0,
+        "1": 1,
+        "2": 222,
+        "3": 11,
+        "4" :38,
+        "5": 31.34617424,
+        "6": 30.0461235
+        }
+
+        """
+
+        loc = "30.071337, 31.354695"
+        loc = "30.052832, 31.326813"
+        
+        msg =   '''{
+                "dateandtime": "'''+str(datetime.utcnow()) +'''",
+                "id": "A'''+str(randint(10,99))+'''" ,
+                "r_cmd": 1,
+                "clon": 31.3'''+str(randint(26813,54695))+''' ,
+                "clat":  30.0'''+str(randint(52832,71337))+''',
+                "spdK/m": '''+str(randint(0,60))+''',
+                "1": 1,
+                "2": 198,
+                "3": 0,
+                "4" :4,
+                "5": 31.34990337023007,
+                "6": 30.060972260514543
+                }'''
+        
+        self.mqtt_publish(msg,self.topic)
+        ...
+
+
+message_queue = Queue()
+mqtt=Mqtt_class(message_queue,TOPIC_RX)
+while True:
+    mqtt.test()
+    sleep(1)
