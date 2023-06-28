@@ -142,8 +142,22 @@ class Mqtt_class:
         ...
 
 
-message_queue = Queue()
-mqtt=Mqtt_class(message_queue,TOPIC_RX)
-while True:
-    mqtt.test()
-    sleep(1)
+
+
+def test():
+
+    message_queue = Queue()
+    mqtt=Mqtt_class(message_queue,TOPIC_RX)
+    while True:
+        mqtt.test()
+
+
+
+
+if __name__=='__main__':
+
+
+    while True:
+        test()
+        
+        
