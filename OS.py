@@ -235,6 +235,11 @@ def route_processor(data,v_instructions):
                     })
             # del v_instructions[str(data[V_ID])+"_R"][0]
             # del v_instructions[str(data[V_ID])+"_R"][0]
+        else:
+                with MQTT_publish_lock:
+                    mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID],"s"])
+            
+
 
 
         # if
@@ -250,6 +255,9 @@ def route_processor(data,v_instructions):
 
 def collisoins_task(queue,v_instructions):
     collision = Collision("map/")
+    mqtt_publish=Mqtt_class(message_queue,TOPIC_RX)
+
+
 
     # collision.mapV2N(data)
     print("collision process started",flush=True)
@@ -279,7 +287,8 @@ def collisoins_task(queue,v_instructions):
                 for id in collision_v:
                     with MQTT_publish_lock:
 
-                        mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID_TX: id})
+                        # mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID_TX: id},channel = 2)
+                        mqtt_publish.mqtt_publish(str({COLLISION_WARNING: 1, V_ID_TX: id}))
                     v_instructions[id+"_W"] = 1
                     # v_instructions.update({id:{} })
 
@@ -294,7 +303,9 @@ def collisoins_task(queue,v_instructions):
                 v_instructions[str(data[V_ID])+"_W"] = 0
                 # mqtt_publish(dict_data={COLLISION_WARNING: 1, V_ID: id})
                 with MQTT_publish_lock:
-                    mqtt_publish([V_ID_TX,COLLISION_WARNING ], [ data[V_ID],0])
+                    # mqtt_publish(dict_data={V_ID_TX: data[V_ID],COLLISION_WARNING: 0},channel = 2)
+                    mqtt_publish.mqtt_publish(str({V_ID_TX: data[V_ID],COLLISION_WARNING: 0}))
+
 
                 # v_instructions[(data[V_ID])]["W"] = 0
                 # sub_dict.update({"W": 0})
@@ -340,6 +351,7 @@ def mqtt_publish(keys=None, values=None,dict_data = None,topic_tx = TOPIC_TX):
     json_msg = json.dumps(dict_data)
 
     # print(json_msg)
+        
     mqtt.mqtt_publish(str(json_msg),topic_tx)
 
     ...
