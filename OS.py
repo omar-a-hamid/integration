@@ -86,7 +86,7 @@ from MQTT import Mqtt_class
 from config import *
 from Collision import Collision
 import pandas as pd 
-
+from TrafficPrediction import *
 
 
 # multiprocessing.set_start_method(method="fork")
@@ -359,6 +359,9 @@ def mqtt_publish(keys=None, values=None,dict_data = None,topic_tx = TOPIC_TX):
 def traffic_prediction_process():
     # @ Nourhan Shafik
     #add here things that will only happen once in the begining
+    my_dataset = DataSet(file_path = HISTORICAL_DATA_FILE_PATH,box_pts = SMOOTHING_FACTOR ,freqGrouper= FREQ_GROUPER)
+    lstm_object = LSTM_Model(my_dataset)
+    lstm_object.load_model(path = LSTM_FILE_PATH)
     while True: 
         time.sleep(1)
         if not datetime.utcnow().second: # this part activates once every hour         #TODO: seconds --> minutes 
@@ -372,9 +375,27 @@ def traffic_prediction_process():
 
                 # predicted_traffic_df =  #add your function here instead of the none
 
-                
+                updated_data = lstm_object.class_dataset.add_new_data(new_data_df)
 
-                write_traffic_csv(df = new_data_df,name = "traffic.csv") #use this to save dataframe to csv 
+            
+                write_traffic_csv(lstm_object.class_dataset.pd_DataFrame)     #save new data to new_traffic_data.csv
+
+                #add part that will happen every hour
+                #extend model, predict traffic
+
+                lstm_object.fit_predict_new_data(new_data = updated_data)
+
+                predicted_traffic_df = lstm_object.predict_df
+
+            
+
+                #predicted_traffic_df = None #add your function here instead of the none
+
+            
+
+                write_traffic_csv(df = predicted_traffic_df,name = "map/traffic.csv") #use this to save dataframe to csv 
+
+                # write_traffic_csv(df = new_data_df,name = "traffic.csv") #use this to save dataframe to csv 
 
 
             
