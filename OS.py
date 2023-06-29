@@ -350,24 +350,24 @@ def traffic_prediction_process():
     while True: 
         time.sleep(1)
         if not datetime.utcnow().second: # this part activates once every hour         #TODO: seconds --> minutes 
+
             
             if not process_message.df.empty:
                 new_data_df = process_traffic_data() #this data frame contains processed traffic data
                                                      #this may be need to be edited to match your input  
                 # write_traffic_csv(new_data_df)     #save new data to new_traffic_data.csv
+                            #extend model, predict traffi
+
+                # predicted_traffic_df =  #add your function here instead of the none
+
+                
+
+                write_traffic_csv(df = new_data_df,name = "traffic.csv") #use this to save dataframe to csv 
+
+
             
 
             #add part that will happen every hour
-            #extend model, predict traffic
-
-            
-
-            predicted_traffic_df = None #add your function here instead of the none
-
-            
-
-            write_traffic_csv(df = predicted_traffic_df,name = "traffic.csv") #use this to save dataframe to csv 
-
 
             #ignore the following 
             #this will need to be a process, the model will take so much power for a thread
@@ -457,7 +457,7 @@ def main():
 
     trafic_thread = threading.Thread(target=traffic_prediction_process,args=())
     trafic_thread.daemon = True
-    # trafic_thread.start()
+    trafic_thread.start()
 
     # trafic_process = multiprocessing.Process(target=traffic_prediction_process,args=())
     # trafic_process.daemon = True

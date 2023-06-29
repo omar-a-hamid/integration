@@ -149,6 +149,7 @@ def test():
     message_queue = Queue()
     mqtt=Mqtt_class(message_queue,TOPIC_RX)
     while True:
+        sleep(0.5)
         mqtt.test()
 
 
