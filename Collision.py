@@ -140,15 +140,17 @@ class Collision:
         node = self.get_closest_node(data[CURRENT_POS_LON],data[CURRENT_POS_LAT])
         eta = self.get_eta(node,data[CURRENT_POS_LON],data[CURRENT_POS_LAT])
         node_id = node.getID()
+        if v_ID in self.nodes_df.columns:
+            self.nodes_df = self.nodes_df.drop(columns=[v_ID])
         # print(v_)
         # print("node: ",node_id)
         if(eta< (10)):
             v_df = pd.DataFrame([v_ID],index = [node_id],columns=[v_ID])
 
 
-            if v_ID in self.nodes_df.columns:
-                self.nodes_df = self.nodes_df.drop(columns=[v_ID])
+            
             self.nodes_df = pd.merge(self.nodes_df, v_df, how='left', left_index=True, right_index=True)
+            # print(self.nodes_df.loc[node_id], flush=True)
             # print(self.nodes_df,flush=True)
             
             # if v_ID in self.nodes_df.columns:
