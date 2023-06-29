@@ -30,7 +30,7 @@ class Mqtt_class:
         # set username and password
         self.client.username_pw_set(self.USER_NAME, self.PASS_WORD)
         # connect to HiveMQ Cloud on port 8883 (default for MQTT)
-        self.client.connect(self.SERVER_URL, self.PORT,keepalive=600)
+        self.client.connect(self.SERVER_URL, self.PORT,keepalive=6000)
 
         # setting callbacks, use separate functions like above for better visibility
         self.client.on_subscribe = self.on_subscribe
