@@ -204,6 +204,7 @@ class Route:
         direction=[]
         # nodes=[]
         # print("path: ",path)
+        # temp = [] 
         for i in range(0,len(path)-1):
             
             from_junction_edges = self.net.getNode(path[i]).getOutgoing()
@@ -221,20 +222,25 @@ class Route:
             current_direction=edges[i].getConnections(edges[i+1])[0].getDirection()
             if current_direction=='s':
                 continue
-            elif current_direction == 'R' :
-                laneFromShape = edges[i].getConnections(edges[i+1])[0].getFromLane().getShape()
-                laneToShape   = edges[i].getConnections(edges[i+1])[0].getToLane().getShape()
+            # elif current_direction == 'R' :
+            #     laneFromShape = edges[i].getConnections(edges[i+1])[0].getFromLane().getShape()
+            #     laneToShape   = edges[i].getConnections(edges[i+1])[0].getToLane().getShape()
 
-                laneFromSt = laneFromShape[0]
-                laneMidPos = laneFromShape[-1]
-                laneToEn   = laneToShape[-1]
-                angle = self.getAngle(laneFromSt,laneMidPos,laneToEn)
-                if angle <= -70 :                #TODO : ay threshold  lel left yaanie 
-                    current_direction = 'l'
-                elif angle < -10:
-                    current_direction = 'L'
+            #     laneFromSt = laneFromShape[0]
+            #     laneMidPos = laneFromShape[-1]
+            #     laneToEn   = laneToShape[-1]
+            #     angle = self.getAngle(laneFromSt,laneMidPos,laneToEn)
+            #     if angle <= -70 :                #TODO : ay threshold  lel left yaanie 
+            #         current_direction = 'l'
+            #     elif angle < -10:
+            #         current_direction = 'L'
             direction.append(current_direction)
+
+            
             (x,y) = edges[i].getConnections(edges[i+1])[0].getJunction().getCoord()
+            print(current_direction,tuple(reversed(self.net.convertXY2LonLat(x,y))),flush=True)
+            
+            # print(tuple(reversed(self.net.convertXY2LonLat(x,y))), flush=True)
             # print(edges[i].getConnections(edges[i+1])[0])
             # print(edges[i].getConnections(edges[i+1])[0].getJunction().getID())
             # nodes.append(tuple(reversed(self.net.convertXY2LonLat(x,y))))
@@ -294,6 +300,8 @@ def test():
     s_lat,s_lon = 30.06288510254581 ,  31.34526851298622 
     g_lat,g_lon =  30.060972260514543 ,  31.34990337023007
 
+    print(f"starting postion: {s_lat} , {s_lon} \ndistination: {g_lat} , {g_lon}")
+
     result = route.find_route(s_lat,s_lon,g_lat,g_lon,time)
 
     # result = route.get_traffic( "-178543139#2",time)
@@ -304,11 +312,11 @@ def test():
 
     # result = route.get_traffic( "-178543139#2",time)
 
-    print(result)
+    # print(result)
 
-    print(result[0])
-    print(result[1])
-    print(result[1][0])
+    # print(result[0])
+    # print(result[1])
+    # print(result[1][0])
 
 
 

@@ -51,7 +51,13 @@ TEST: U-turn may appear as 'R' maybe followed by an 'l' (A*)
 ####################################################################
 
 
-BUG: warning stops being sent 
+BUG: corrupted data due to improper shifting 
+BUG: lstm init 
+BUG: future predictions count 
+BUG: usses dataframe instead of csv file //will need further testing to see if it can be 
+                                                handled using a thread
+
+
 
 ####################################################################
 DONE: extarct relvant traffic data, timed process? as tarffic prediction
@@ -224,15 +230,30 @@ def route_processor(data,v_instructions):
         current_x, current_y =data[CURRENT_POS_LAT] ,data[CURRENT_POS_LON]
         distance = route.get_distance(next_direction_x,next_direction_y,current_x,current_y) 
         print ("distance to next turn: ",distance)
-        if(distance<=100):#TODO
+        if(distance<75):#TODO
             with MQTT_publish_lock:
 
                 mqtt_publish([V_ID_TX,ROUTE ], [data[V_ID], v_instructions[str(data[V_ID])+"_R"][0]])
             # v_instructions[str(data[V_ID])+"_R"].pop(0)
-            if(distance<=2):
+            if(distance<=15):
+                # v_instructions.update({
+                #     str(data[V_ID]+"_F"):1
+                #     })
+                v_instructions[str(data[V_ID])+"_F"] = 1
+
+                # v_instructions.update({
+                #     str(data[V_ID]+"_R"):v_instructions[data[V_ID]+"_R"][2:]
+                #     })
+            elif str(data[V_ID]+"_F") in v_instructions and v_instructions[str(data[V_ID])+"_F"] == 1: 
                 v_instructions.update({
                     str(data[V_ID]+"_R"):v_instructions[data[V_ID]+"_R"][2:]
                     })
+                v_instructions.update({
+                    str(data[V_ID]+"_F"):0
+                    })
+
+                
+
             # del v_instructions[str(data[V_ID])+"_R"][0]
             # del v_instructions[str(data[V_ID])+"_R"][0]
         else:
@@ -359,9 +380,12 @@ def mqtt_publish(keys=None, values=None,dict_data = None,topic_tx = TOPIC_TX):
 def traffic_prediction_process():
     # @ Nourhan Shafik
     #add here things that will only happen once in the begining
+    print("start model init")
     my_dataset = DataSet(file_path = HISTORICAL_DATA_FILE_PATH,box_pts = SMOOTHING_FACTOR ,freqGrouper= FREQ_GROUPER)
     lstm_object = LSTM_Model(my_dataset)
     lstm_object.load_model(path = LSTM_FILE_PATH)
+    print("starting traffic process")
+
     while True: 
         time.sleep(1)
         if not datetime.utcnow().second: # this part activates once every hour         #TODO: seconds --> minutes 
@@ -490,7 +514,7 @@ def main():
 
     trafic_thread = threading.Thread(target=traffic_prediction_process,args=())
     trafic_thread.daemon = True
-    trafic_thread.start()
+    # trafic_thread.start()
 
     # trafic_process = multiprocessing.Process(target=traffic_prediction_process,args=())
     # trafic_process.daemon = True

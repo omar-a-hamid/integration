@@ -1,3 +1,10 @@
+HISTORICAL_DATA_FILE_PATH = "new_traffic_data.csv"
+LSTM_FILE_PATH = 'LSTMS_7steps.h5'
+SMOOTHING_FACTOR = 10
+FREQ_GROUPER = '16T'
+NEW_DATA_HISTORICAL = -100
+FEATURES_COUNT = 634                    
+
 
 
 # USER_NAME= "OmarA"
